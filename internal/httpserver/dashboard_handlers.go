@@ -115,6 +115,13 @@ func buildAdminNavigation(p *auth.Principal) []adminNavGroup {
 		}
 	}
 	appendGroup("Master Akademik", "fa-folder-open", []struct{ label, permission string }{{"Program Studi", "study-programs.view"}, {"Periode Akademik", "academic-periods.view"}, {"Golongan Mahasiswa", "student-categories.view"}, {"Jenis Biaya", "charge-types.view"}, {"Mahasiswa", "students.view"}})
+	for groupIndex := range groups {
+		for itemIndex := range groups[groupIndex].Items {
+			if groups[groupIndex].Items[itemIndex].Label == "Program Studi" {
+				groups[groupIndex].Items[itemIndex].Href = "/study-programs"
+			}
+		}
+	}
 	appendGroup("Kebijakan Tagihan", "fa-file-invoice", []struct{ label, permission string }{{"Tarif & Kebijakan", "billing-policies.view"}, {"Jadwal Pembayaran", "billing-policy-schedules.view"}, {"Penetapan Mahasiswa", "student-billing-policies.view"}, {"Penetapan Massal", "student-billing-policy-batches.view"}})
 	appendGroup("Transaksi Keuangan", "fa-receipt", []struct{ label, permission string }{{"Tagihan Mahasiswa", "student-invoices.view"}, {"Generate Tagihan", "invoice-generation-batches.view"}, {"Pembayaran", "payments.view"}, {"Audit Log Keuangan", "audit-logs.view"}})
 	if p.HasRole("Super Admin") {
