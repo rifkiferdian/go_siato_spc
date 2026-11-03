@@ -83,6 +83,25 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  const permissionCheckboxes = [...document.querySelectorAll("[data-permission-checkbox]")];
+  const selectAllPermissions = document.querySelector("[data-select-all-permissions]");
+  const selectedPermissionCount = document.querySelector("[data-selected-permission-count]");
+  const refreshPermissionState = () => {
+    const selected = permissionCheckboxes.filter((checkbox) => checkbox.checked).length;
+    if (selectedPermissionCount) selectedPermissionCount.textContent = String(selected);
+    if (selectAllPermissions) {
+      const allSelected = permissionCheckboxes.length > 0 && selected === permissionCheckboxes.length;
+      selectAllPermissions.textContent = allSelected ? "Batalkan Semua" : "Pilih Semua";
+    }
+  };
+  permissionCheckboxes.forEach((checkbox) => checkbox.addEventListener("change", refreshPermissionState));
+  selectAllPermissions?.addEventListener("click", () => {
+    const shouldSelect = permissionCheckboxes.some((checkbox) => !checkbox.checked);
+    permissionCheckboxes.forEach((checkbox) => { checkbox.checked = shouldSelect; });
+    refreshPermissionState();
+  });
+  refreshPermissionState();
+
   document.addEventListener("keydown", (event) => {
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
       event.preventDefault();

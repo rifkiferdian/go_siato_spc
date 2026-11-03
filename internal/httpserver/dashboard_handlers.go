@@ -118,7 +118,7 @@ func buildAdminNavigation(p *auth.Principal) []adminNavGroup {
 	appendGroup("Kebijakan Tagihan", "fa-file-invoice", []struct{ label, permission string }{{"Tarif & Kebijakan", "billing-policies.view"}, {"Jadwal Pembayaran", "billing-policy-schedules.view"}, {"Penetapan Mahasiswa", "student-billing-policies.view"}, {"Penetapan Massal", "student-billing-policy-batches.view"}})
 	appendGroup("Transaksi Keuangan", "fa-receipt", []struct{ label, permission string }{{"Tagihan Mahasiswa", "student-invoices.view"}, {"Generate Tagihan", "invoice-generation-batches.view"}, {"Pembayaran", "payments.view"}, {"Audit Log Keuangan", "audit-logs.view"}})
 	if p.HasRole("Super Admin") {
-		groups = append(groups, adminNavGroup{Label: "Manajemen Pengguna", Icon: "fa-users-gear", Items: []adminNavItem{{Label: "Pengguna", Href: "/users", Icon: "fa-circle"}, {Label: "Role & Akses", Href: "#", Icon: "fa-circle"}}})
+		groups = append(groups, adminNavGroup{Label: "Manajemen Pengguna", Icon: "fa-users-gear", Items: []adminNavItem{{Label: "Pengguna", Href: "/users", Icon: "fa-circle"}, {Label: "Role & Akses", Href: "/roles", Icon: "fa-circle"}}})
 	}
 	appendGroup("Program Bantuan", "fa-hand-holding-heart", []struct{ label, permission string }{{"Program Bantuan", "funding-programs.view"}, {"Penerima Program", "student-funding-programs.view"}, {"Penyesuaian Tagihan", "student-invoice-adjustments.view"}})
 	return groups

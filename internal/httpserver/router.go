@@ -62,6 +62,14 @@ func New(cfg config.Config, db *sql.DB) http.Handler {
 	users.GET("/:id/reset-password", auth.RequirePermission("users.reset-password"), usersHTTP.resetForm)
 	users.POST("/:id/reset-password", auth.RequirePermission("users.reset-password"), usersHTTP.resetPassword)
 	users.POST("/:id/delete", auth.RequirePermission("users.update"), usersHTTP.delete)
+	rolesHTTP := rolesHandlers{cfg: cfg, db: db}
+	roles := router.Group("/roles", auth.RequireAuthentication())
+	roles.GET("", auth.RequirePermission("roles.view"), rolesHTTP.index)
+	roles.GET("/create", auth.RequirePermission("roles.manage"), rolesHTTP.createForm)
+	roles.POST("/create", auth.RequirePermission("roles.manage"), rolesHTTP.create)
+	roles.GET("/:id/edit", auth.RequirePermission("roles.manage"), rolesHTTP.editForm)
+	roles.POST("/:id/edit", auth.RequirePermission("roles.manage"), rolesHTTP.update)
+	roles.POST("/:id/delete", auth.RequirePermission("roles.manage"), rolesHTTP.delete)
 
 	router.GET("/health", func(c *gin.Context) {
 		ctx, cancel := contextWithTimeout(c, 2*time.Second)

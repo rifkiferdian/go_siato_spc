@@ -1,0 +1,46 @@
+{{ define "roles/form.html" }}
+<!doctype html>
+<html lang="id" class="h-full bg-slate-50">
+{{ template "admin/head" . }}
+<body class="h-full bg-slate-50 font-sans text-slate-900 antialiased">
+  <div class="min-h-screen lg:grid lg:grid-cols-[265px_minmax(0,1fr)]">
+    {{ template "admin/sidebar" . }}
+    <div class="flex min-h-screen min-w-0 flex-col">
+      {{ template "admin/header" . }}
+      <main class="mx-auto w-full max-w-[1440px] flex-1 px-4 py-6 sm:px-8 xl:px-10">
+        <a href="/roles" class="inline-flex items-center gap-2 text-xs font-bold text-violet-700 hover:text-violet-900"><i class="fa-solid fa-arrow-left"></i>Kembali ke Role &amp; Akses</a>
+        <form method="post" action="{{ if .IsEdit }}/roles/{{ .EditID }}/edit{{ else }}/roles/create{{ end }}" class="mt-4">
+          <input type="hidden" name="csrf_token" value="{{ .User.CSRFToken }}">
+          {{ if .Error }}<div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700"><i class="fa-solid fa-circle-exclamation mr-2"></i>{{ .Error }}</div>{{ end }}
+          <div class="grid gap-4 xl:grid-cols-[18rem_minmax(0,1fr)]">
+            <section class="self-start rounded-xl border border-slate-200 bg-white p-5 shadow-sm xl:sticky xl:top-28">
+              <label for="role-name" class="text-xs font-bold text-slate-700">Nama Role</label>
+              <input id="role-name" name="name" value="{{ .Name }}" required autofocus class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-xs outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100" placeholder="Contoh: Staf Verifikasi">
+              <div class="mt-4 rounded-lg bg-violet-50 p-3 text-[11px] leading-5 text-violet-900"><p class="font-bold"><i class="fa-regular fa-lightbulb mr-1"></i>Panduan</p><p class="mt-1 text-violet-700">Gunakan nama yang menggambarkan tanggung jawab pengguna. Pilih hanya permission yang benar-benar diperlukan.</p></div>
+              <div class="mt-4 rounded-lg border border-slate-100 p-3"><p class="text-[11px] font-bold text-slate-600">Permission dipilih</p><p class="mt-1 text-2xl font-black text-[#932093]" data-selected-permission-count>0</p></div>
+            </section>
+            <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-4"><div><h2 class="text-sm font-black">Hak Akses</h2><p class="mt-1 text-xs text-slate-500">Pilih permission yang dimiliki role ini.</p></div><button type="button" class="rounded-lg bg-violet-50 px-3 py-2 text-[11px] font-bold text-violet-700 hover:bg-violet-100" data-select-all-permissions>Pilih Semua</button></div>
+              <div class="mt-4 grid gap-3 md:grid-cols-2">
+                {{ range .PermissionGroups }}
+                <fieldset class="rounded-xl border border-slate-200 p-3">
+                  <legend class="px-1.5 text-[11px] font-black uppercase tracking-wider text-violet-700">{{ .Name }}</legend>
+                  <div class="mt-1.5 space-y-1">
+                    {{ range .Permissions }}
+                    <label class="flex cursor-pointer items-start gap-2.5 rounded-lg p-2 text-xs transition hover:bg-slate-50"><input type="checkbox" name="permissions" value="{{ .ID }}" {{ if .Selected }}checked{{ end }} class="mt-0.5 size-4 rounded accent-violet-700" data-permission-checkbox><span><span class="block font-semibold text-slate-700">{{ .Display }}</span><span class="mt-0.5 block text-[10px] text-slate-400">{{ .Name }}</span></span></label>
+                    {{ end }}
+                  </div>
+                </fieldset>
+                {{ end }}
+              </div>
+            </section>
+          </div>
+          <div class="mt-4 flex justify-end gap-2"><a href="/roles" class="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-50">Batal</a><button type="submit" class="rounded-lg bg-[#932093] px-4 py-2.5 text-xs font-bold text-white shadow-sm shadow-violet-200 hover:bg-[#800080]">Simpan Role</button></div>
+        </form>
+      </main>
+      {{ template "admin/footer" . }}
+    </div>
+  </div>
+  {{ template "admin/scripts" . }}
+</body></html>
+{{ end }}
