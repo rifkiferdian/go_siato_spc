@@ -1,0 +1,53 @@
+{{ define "admin/header" }}
+<header class="sticky top-0 z-30 h-[84px] shrink-0 border-b border-[#e2e8f0] bg-white"><div class="h-[3px] bg-gradient-to-r from-[#4a004a] via-[#932093] to-[#d65ad6]"></div><div class="flex h-[81px] items-center justify-between gap-4 px-5 lg:px-8">
+  <div class="flex min-w-0 items-center gap-3"><a href="/dashboard" class="grid size-10 shrink-0 place-items-center rounded-xl bg-[#932093] font-black text-white lg:hidden">SF</a><div class="min-w-0"><div class="hidden items-center gap-3 text-[12px] font-medium leading-4 sm:flex"><span class="text-[#8ca0bd]">SIATO Finance</span><i class="fa-solid fa-chevron-right text-[8px] text-[#a7b5ca]"></i><span class="text-[#932093]">{{ .Title }}</span></div><h1 class="mt-1 truncate text-[19px] font-black leading-6 tracking-[-.03em] text-[#14213a]">{{ .Title }}</h1></div></div>
+  <div class="flex items-center gap-2.5 lg:mr-4 xl:mr-6"><div class="hidden h-[38px] items-center gap-2.5 rounded-xl bg-[#fafbfe] px-3 text-[12px] text-[#647995] xl:flex"><i class="fa-regular fa-calendar text-[#a516a5]"></i><span>{{ .CurrentDate }}</span></div>
+    <label class="relative hidden lg:block"><span class="sr-only">Cari data</span><i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-[12px] text-[#8fa5c4]"></i><input type="search" class="h-[38px] w-[226px] rounded-xl border border-[#dfe6ef] bg-[#fbfcfe] pl-10 pr-12 text-[12px] outline-none placeholder:text-[#8da1bc] focus:border-[#c586c5] focus:ring-2 focus:ring-[#f3e2f3]" placeholder="Cari pembayaran, NIM"><kbd class="absolute right-3 top-1/2 -translate-y-1/2 rounded border border-[#dce4ee] bg-white px-1.5 py-0.5 text-[11px] text-[#91a2ba]">Ctrl K</kbd></label>
+    <details class="admin-header-menu group relative" data-admin-dropdown data-notification-menu>
+      <summary class="relative grid size-[38px] cursor-pointer list-none place-items-center rounded-xl border border-[#dfe6ef] text-[#607590] transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 [&::-webkit-details-marker]:hidden"><i class="fa-regular fa-bell"></i><span class="absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-red-500 text-[11px] font-bold text-white ring-2 ring-white" data-notification-count>3</span></summary>
+      <div class="absolute right-0 mt-3 w-[370px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-[#e4e9f1] bg-white shadow-[0_18px_45px_rgba(30,41,59,.18)]">
+        <div class="flex items-center justify-between border-b border-[#edf0f5] bg-gradient-to-r from-[#fff8ff] to-white px-4 py-3.5">
+          <div><strong class="block text-[14px] font-black text-[#17233a]">Notifikasi</strong><span class="mt-0.5 block text-[11px] text-[#7b8da7]" data-unread-label>3 notifikasi belum dibaca</span></div>
+          <button type="button" class="rounded-lg px-2.5 py-1.5 text-[11px] font-bold text-[#932093] transition hover:bg-violet-100" data-mark-notifications-read>Tandai dibaca</button>
+        </div>
+        <div class="sidebar-scrollbar-hidden max-h-[360px] overflow-y-auto" data-notification-list>
+          <a href="#" class="flex gap-3 border-b border-[#edf0f5] bg-violet-50/60 px-4 py-3.5 transition hover:bg-[#fbf3fb]" data-unread-notification>
+            <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-emerald-100 text-emerald-600"><i class="fa-solid fa-money-bill-transfer text-[14px]"></i></span>
+            <span class="min-w-0 flex-1"><strong class="block text-[12px] font-bold text-[#263852]">Pembayaran berhasil diterima</strong><span class="mt-1 block text-[11px] leading-[17px] text-[#7184a0]">Pembayaran UKT oleh <b class="font-semibold text-[#4d607b]">Ahmad Fauzan</b> sebesar Rp2.500.000.</span><span class="mt-1.5 flex items-center gap-1 text-[10px] font-medium text-emerald-600"><i class="fa-regular fa-clock"></i>2 menit lalu</span></span>
+            <span class="mt-1.5 size-2 shrink-0 rounded-full bg-[#932093]" data-unread-dot></span>
+          </a>
+          <a href="#" class="flex gap-3 border-b border-[#edf0f5] bg-violet-50/60 px-4 py-3.5 transition hover:bg-[#fbf3fb]" data-unread-notification>
+            <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-amber-100 text-amber-600"><i class="fa-solid fa-file-circle-exclamation text-[14px]"></i></span>
+            <span class="min-w-0 flex-1"><strong class="block text-[12px] font-bold text-[#263852]">Menunggu verifikasi admin</strong><span class="mt-1 block text-[11px] leading-[17px] text-[#7184a0]">Ada 5 transaksi pembayaran yang perlu segera diperiksa.</span><span class="mt-1.5 flex items-center gap-1 text-[10px] font-medium text-amber-600"><i class="fa-regular fa-clock"></i>15 menit lalu</span></span>
+            <span class="mt-1.5 size-2 shrink-0 rounded-full bg-[#932093]" data-unread-dot></span>
+          </a>
+          <a href="#" class="flex gap-3 border-b border-[#edf0f5] bg-violet-50/60 px-4 py-3.5 transition hover:bg-[#fbf3fb]" data-unread-notification>
+            <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-red-100 text-red-600"><i class="fa-solid fa-calendar-xmark text-[14px]"></i></span>
+            <span class="min-w-0 flex-1"><strong class="block text-[12px] font-bold text-[#263852]">Tagihan mendekati jatuh tempo</strong><span class="mt-1 block text-[11px] leading-[17px] text-[#7184a0]">23 tagihan mahasiswa akan jatuh tempo dalam 3 hari.</span><span class="mt-1.5 flex items-center gap-1 text-[10px] font-medium text-red-500"><i class="fa-regular fa-clock"></i>1 jam lalu</span></span>
+            <span class="mt-1.5 size-2 shrink-0 rounded-full bg-[#932093]" data-unread-dot></span>
+          </a>
+          <a href="#" class="flex gap-3 border-b border-[#edf0f5] px-4 py-3.5 transition hover:bg-slate-50">
+            <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-blue-100 text-blue-600"><i class="fa-solid fa-circle-info text-[14px]"></i></span>
+            <span class="min-w-0 flex-1"><strong class="block text-[12px] font-bold text-[#263852]">Rekap harian tersedia</strong><span class="mt-1 block text-[11px] leading-[17px] text-[#7184a0]">Laporan transaksi tanggal 02 November 2026 siap dilihat.</span><span class="mt-1.5 flex items-center gap-1 text-[10px] font-medium text-[#8a9bb3]"><i class="fa-regular fa-clock"></i>Kemarin</span></span>
+          </a>
+        </div>
+        <a href="#" class="flex h-11 items-center justify-center gap-2 bg-[#fcfafd] text-[11px] font-bold text-[#932093] transition hover:bg-violet-50">Lihat semua notifikasi<i class="fa-solid fa-arrow-right text-[10px]"></i></a>
+      </div>
+    </details>
+    <div class="hidden h-[38px] w-px bg-[#e0e6ee] sm:block"></div>
+    <details class="admin-header-menu group relative" data-admin-dropdown>
+      <summary class="flex cursor-pointer list-none items-center gap-3 rounded-xl p-1 transition hover:bg-[#fbf5fb] [&::-webkit-details-marker]:hidden"><span class="grid size-[37px] place-items-center rounded-[12px] bg-gradient-to-br from-[#b83db8] to-[#7d147d] text-[13px] font-black text-white shadow-sm shadow-violet-200">{{ .Initial }}</span><span class="hidden w-[136px] text-left xl:block"><strong class="block truncate text-[12px] leading-4 text-[#18243a]">{{ .User.UserName }}</strong><span class="block truncate text-[11px] leading-4 text-[#657895]">{{ .RoleLabel }}</span></span><i class="fa-solid fa-chevron-down hidden text-[9px] text-[#8da1bc] transition-transform duration-200 group-open:rotate-180 xl:block"></i></summary>
+      <div class="absolute right-0 mt-3 w-[280px] overflow-hidden rounded-2xl border border-[#e4e9f1] bg-white shadow-[0_18px_45px_rgba(30,41,59,.18)]">
+        <div class="relative overflow-hidden bg-gradient-to-br from-[#fff8ff] via-white to-[#f8f3fb] px-4 py-4">
+          <span class="absolute -right-5 -top-7 size-24 rounded-full bg-violet-100/60"></span>
+          <div class="relative min-w-0"><strong class="block truncate text-[13px] font-black text-[#17233a]">{{ .User.UserName }}</strong><span class="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-violet-100 px-2 py-1 text-[10px] font-bold text-[#800080]"><i class="fa-solid fa-shield-halved text-[9px]"></i>{{ .RoleLabel }}</span></div>
+        </div>
+        <div class="border-y border-[#edf0f5] p-2">
+          <a href="/account/settings" class="group/item flex items-center gap-3 rounded-xl px-3 py-2.5 text-[12px] font-semibold text-[#405574] transition hover:bg-[#faf3fa] hover:text-[#800080]"><span class="grid size-8 place-items-center rounded-lg bg-slate-100 text-[#8296b2] transition group-hover/item:bg-violet-100 group-hover/item:text-[#932093]"><i class="fa-solid fa-user-gear text-[12px]"></i></span><span>Pengaturan akun</span><i class="fa-solid fa-chevron-right ml-auto text-[9px] text-slate-300"></i></a>
+        </div>
+        <form action="/logout" method="post" class="p-2"><input type="hidden" name="csrf_token" value="{{ .User.CSRFToken }}"><button type="submit" class="group/logout flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[12px] font-bold text-red-600 transition hover:bg-red-50"><span class="grid size-8 place-items-center rounded-lg bg-red-50 text-red-500 transition group-hover/logout:bg-red-100"><i class="fa-solid fa-arrow-right-from-bracket text-[12px]"></i></span><span>Keluar dari sistem</span><i class="fa-solid fa-chevron-right ml-auto text-[9px] text-red-300 transition group-hover/logout:translate-x-0.5"></i></button></form>
+      </div>
+    </details>
+  </div>
+</div></header>
+{{ end }}

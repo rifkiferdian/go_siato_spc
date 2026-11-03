@@ -1,0 +1,32 @@
+{{ define "account/settings.html" }}
+<!doctype html>
+<html lang="id" class="h-full bg-slate-50">
+{{ template "admin/head" . }}
+<body class="h-full bg-slate-50 font-sans text-slate-900 antialiased">
+  <div class="min-h-screen lg:grid lg:grid-cols-[265px_minmax(0,1fr)]">
+    {{ template "admin/sidebar" . }}
+    <div class="flex min-h-screen min-w-0 flex-col">
+      {{ template "admin/header" . }}
+      <main class="mx-auto w-full max-w-[1440px] flex-1 px-4 py-6 sm:px-8 xl:px-10">
+        <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+          <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div class="border-b border-slate-100 px-6 py-5"><p class="text-[12px] font-black uppercase tracking-[.09em] text-[#932093]">Profil Saya</p><h2 class="mt-2 text-xl font-black tracking-tight text-[#14213a]">Informasi akun</h2><p class="mt-1 text-sm text-slate-500">Informasi identitas yang digunakan untuk masuk ke SIATO Finance.</p></div>
+            <div class="grid gap-5 p-6 sm:grid-cols-2">
+              <div><label class="mb-2 block text-xs font-bold text-slate-600">Nama pengguna</label><div class="flex h-11 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700"><i class="fa-regular fa-user text-slate-400"></i><span class="truncate">{{ .User.UserName }}</span></div></div>
+              <div><label class="mb-2 block text-xs font-bold text-slate-600">Email</label><div class="flex h-11 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700"><i class="fa-regular fa-envelope text-slate-400"></i><span class="truncate">{{ .User.Email }}</span></div></div>
+              <div class="sm:col-span-2"><label class="mb-2 block text-xs font-bold text-slate-600">Role aktif</label><div class="flex min-h-11 flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">{{ range .User.Roles }}<span class="rounded-full bg-violet-100 px-3 py-1 text-xs font-bold text-violet-800"><i class="fa-solid fa-shield-halved mr-1.5 text-[10px]"></i>{{ . }}</span>{{ end }}</div></div>
+            </div>
+          </section>
+          <aside class="space-y-5">
+            <section class="rounded-2xl border border-violet-100 bg-gradient-to-br from-[#fff8ff] to-white p-5 shadow-sm"><span class="grid size-11 place-items-center rounded-xl bg-violet-100 text-violet-700"><i class="fa-solid fa-key"></i></span><h2 class="mt-4 text-base font-black text-[#14213a]">Keamanan akun</h2><p class="mt-2 text-sm leading-6 text-slate-500">Gunakan kata sandi yang kuat dan jangan membagikan akses akun kepada siapa pun.</p><div class="mt-4 flex h-10 items-center justify-center gap-2 rounded-xl bg-violet-50 px-4 text-xs font-bold text-violet-700"><i class="fa-solid fa-lock"></i>Perubahan kata sandi melalui administrator</div></section>
+            <section class="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5"><p class="flex items-center gap-2 text-xs font-bold text-emerald-800"><span class="size-2 rounded-full bg-emerald-500"></span>Sesi aktif</p><p class="mt-2 text-xs leading-5 text-emerald-700">Akun Anda sedang terautentikasi dan sesi terlindungi.</p></section>
+          </aside>
+        </div>
+      </main>
+      {{ template "admin/footer" . }}
+    </div>
+  </div>
+  {{ template "admin/scripts" . }}
+</body>
+</html>
+{{ end }}

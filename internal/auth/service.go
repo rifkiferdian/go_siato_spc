@@ -376,6 +376,93 @@ WHERE NormalizedEmail = ? OR NormalizedUserName = ?`, passwordHash, s.now(), sec
 	return tx.Commit()
 }
 
+// CreateManagedUser creates an application user with a Go-native password and
+// assigns only role IDs that already exist in the database.
+func (s *Service) CreateManagedUser(ctx context.Context, email, password string, roleIDs []string) error {
+	if err := ValidateNewPassword(password); err != nil {
+		return err
+	}
+	passwordHash, err := HashPassword(password, s.passwordPepper)
+	if err != nil {
+		return err
+	}
+	userID, err := randomToken(24)
+	if err != nil {
+		return err
+	}
+	securityStamp, err := randomToken(32)
+	if err != nil {
+		return err
+	}
+	email = strings.TrimSpace(email)
+	normalized := strings.ToUpper(email)
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	var exists int
+	if err := tx.QueryRowContext(ctx, `SELECT COUNT(*) FROM users WHERE NormalizedEmail = ?`, normalized).Scan(&exists); err != nil {
+		return err
+	}
+	if exists > 0 {
+		return fmt.Errorf("email sudah digunakan")
+	}
+	_, err = tx.ExecContext(ctx, `INSERT INTO users
+        (Id, UserName, NormalizedUserName, Email, NormalizedEmail, EmailConfirmed,
+         SecurityStamp, PhoneNumberConfirmed, TwoFactorEnabled, LockoutEnabled,
+         AccessFailedCount, GoPasswordHash, GoPasswordResetRequired, GoPasswordUpdatedAt)
+        VALUES (?, ?, ?, ?, ?, 1, ?, 0, 0, 1, 0, ?, 0, ?)`,
+		userID, email, normalized, email, normalized, securityStamp, passwordHash, s.now())
+	if err != nil {
+		return err
+	}
+	for _, roleID := range roleIDs {
+		if _, err := tx.ExecContext(ctx, `INSERT INTO user_roles (UserId, RoleId) SELECT ?, Id FROM roles WHERE Id = ?`, userID, roleID); err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
+}
+
+// SetManagedUserPassword resets a user's Go password and revokes every active
+// session so the new password becomes authoritative immediately.
+func (s *Service) SetManagedUserPassword(ctx context.Context, userID, password string) error {
+	if err := ValidateNewPassword(password); err != nil {
+		return err
+	}
+	passwordHash, err := HashPassword(password, s.passwordPepper)
+	if err != nil {
+		return err
+	}
+	securityStamp, err := randomToken(32)
+	if err != nil {
+		return err
+	}
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	result, err := tx.ExecContext(ctx, `UPDATE users SET GoPasswordHash = ?, GoPasswordResetRequired = 0,
+        GoPasswordUpdatedAt = ?, SecurityStamp = ?, AccessFailedCount = 0, LockoutEnd = NULL WHERE Id = ?`,
+		passwordHash, s.now(), securityStamp, userID)
+	if err != nil {
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil || rows != 1 {
+		return fmt.Errorf("pengguna tidak ditemukan")
+	}
+	if _, err := tx.ExecContext(ctx, `DELETE FROM go_auth_sessions WHERE user_id = ?`, userID); err != nil {
+		return err
+	}
+	if _, err := tx.ExecContext(ctx, `DELETE FROM go_password_reset_tokens WHERE user_id = ?`, userID); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
 func (s *Service) SetSessionCookie(w http.ResponseWriter, rawToken string, remember bool) {
 	cookie := &http.Cookie{Name: SessionCookieName, Value: rawToken, Path: "/", HttpOnly: true, Secure: s.secureCookie, SameSite: http.SameSiteLaxMode}
 	if remember {

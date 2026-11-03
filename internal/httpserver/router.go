@@ -2,7 +2,9 @@ package httpserver
 
 import (
 	"database/sql"
+	"html/template"
 	"net/http"
+	"path/filepath"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -18,7 +20,9 @@ func New(cfg config.Config, db *sql.DB) http.Handler {
 	router := gin.New()
 	authService := auth.NewService(db, cfg.Environment == "production", cfg.PasswordPepper)
 	router.Use(gin.Logger(), gin.Recovery(), authService.LoadPrincipal())
-	router.LoadHTMLGlob("web/templates/**/*.html")
+	templates := template.Must(template.ParseGlob(filepath.FromSlash("web/templates/*/*.html")))
+	template.Must(templates.ParseGlob(filepath.FromSlash("web/templates/partials/*/*.html")))
+	router.SetHTMLTemplate(templates)
 	router.Static("/static", "./web/static")
 
 	router.GET("/", func(c *gin.Context) {
@@ -46,6 +50,18 @@ func New(cfg config.Config, db *sql.DB) http.Handler {
 
 	dashboardHTTP := dashboardHandlers{cfg: cfg, db: db}
 	router.GET("/dashboard", auth.RequireAuthentication(), dashboardHTTP.index)
+	accountHTTP := accountHandlers{cfg: cfg}
+	router.GET("/account/settings", auth.RequireAuthentication(), accountHTTP.settings)
+	usersHTTP := usersHandlers{cfg: cfg, db: db, auth: authService}
+	users := router.Group("/users", auth.RequireAuthentication())
+	users.GET("", auth.RequirePermission("users.view"), usersHTTP.index)
+	users.GET("/create", auth.RequirePermission("users.create"), usersHTTP.createForm)
+	users.POST("/create", auth.RequirePermission("users.create"), usersHTTP.create)
+	users.GET("/:id/edit", auth.RequirePermission("users.update"), usersHTTP.editForm)
+	users.POST("/:id/edit", auth.RequirePermission("users.update"), usersHTTP.update)
+	users.GET("/:id/reset-password", auth.RequirePermission("users.reset-password"), usersHTTP.resetForm)
+	users.POST("/:id/reset-password", auth.RequirePermission("users.reset-password"), usersHTTP.resetPassword)
+	users.POST("/:id/delete", auth.RequirePermission("users.update"), usersHTTP.delete)
 
 	router.GET("/health", func(c *gin.Context) {
 		ctx, cancel := contextWithTimeout(c, 2*time.Second)

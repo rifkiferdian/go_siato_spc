@@ -48,7 +48,27 @@
   --color-violet-950: #330733;
 }
 
+@layer utilities {
+  .sidebar-scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .sidebar-scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+}
+
 @layer components {
+  .siato-swal-popup { border-radius: 1rem; font-family: var(--font-sans); }
+  .admin-nav-group,
+  .admin-header-menu { @apply rounded-none border-0 bg-transparent p-0 open:shadow-none; }
+  .admin-nav-group > summary,
+  .admin-header-menu > summary { @apply font-normal; }
+  .admin-quick-action { @apply flex items-center justify-center gap-2 rounded-xl border px-3 py-3 text-xs font-bold transition hover:-translate-y-0.5 hover:shadow-md; }
+  .admin-quick-action i { @apply grid size-6 place-items-center rounded-lg bg-white; }
   .eyebrow { @apply text-sm font-bold uppercase tracking-widest text-violet-700; }
   .service-card { @apply rounded-2xl border border-slate-200 p-6 transition hover:-translate-y-1 hover:border-violet-200 hover:shadow-xl; }
   .service-card span { @apply grid size-11 place-items-center rounded-xl bg-violet-50 text-sm font-bold text-violet-700; }
@@ -77,11 +97,11 @@
   .stat { @apply rounded-2xl bg-white/10 p-6; }
   .stat b { @apply text-3xl; }
   .stat p { @apply mt-2 text-sm text-violet-100; }
-  details { @apply rounded-2xl border border-slate-200 bg-white p-6 open:shadow-md; }
-  details summary { @apply flex cursor-pointer list-none justify-between font-semibold; }
-  details summary span { @apply text-xl text-violet-700; }
-  details[open] summary span { @apply rotate-45; }
-  details > p { @apply mt-4 border-t pt-4 text-sm text-slate-600; }
+  #faq details { @apply rounded-2xl border border-slate-200 bg-white p-6 open:shadow-md; }
+  #faq details summary { @apply flex cursor-pointer list-none justify-between font-semibold; }
+  #faq details summary span { @apply text-xl text-violet-700; }
+  #faq details[open] summary span { @apply rotate-45; }
+  #faq details > p { @apply mt-4 border-t pt-4 text-sm text-slate-600; }
   .privacy-card { @apply scroll-mt-28 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8; }
   .privacy-card > small { @apply text-sm font-bold text-violet-700; }
   .privacy-card h2 { @apply mt-2 text-2xl font-bold text-slate-950; }

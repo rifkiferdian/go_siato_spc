@@ -1,0 +1,18 @@
+{{ define "admin/head" }}
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="{{ .Title }} - SIATO Finance">
+  <title>{{ .Title }} - SIATO Finance</title>
+  <link rel="icon" type="image/png" href="/static/favicon.png">
+  <link rel="stylesheet" href="/static/vendor/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="/static/vendor/sweetalert2/sweetalert2.min.css">
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+{{ end }}
+
+{{ define "admin/scripts" }}
+<script src="/static/vendor/sweetalert2/sweetalert2.all.min.js"></script>
+<script src="/static/js/admin-finance.js"></script>
+{{ end }}
