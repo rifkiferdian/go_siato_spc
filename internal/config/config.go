@@ -10,11 +10,12 @@ import (
 )
 
 type Config struct {
-	Environment string
-	Name        string
-	Addr        string
-	BaseURL     string
-	Database    DatabaseConfig
+	Environment    string
+	Name           string
+	Addr           string
+	BaseURL        string
+	PasswordPepper string
+	Database       DatabaseConfig
 }
 
 type DatabaseConfig struct {
@@ -45,10 +46,11 @@ func Load() (Config, error) {
 	}
 
 	cfg := Config{
-		Environment: env("APP_ENV", "development"),
-		Name:        env("APP_NAME", "SIATO SPC"),
-		Addr:        env("APP_ADDR", ":8080"),
-		BaseURL:     env("APP_BASE_URL", "http://localhost:8080"),
+		Environment:    env("APP_ENV", "development"),
+		Name:           env("APP_NAME", "SIATO SPC"),
+		Addr:           env("APP_ADDR", ":8080"),
+		BaseURL:        env("APP_BASE_URL", "http://localhost:8080"),
+		PasswordPepper: os.Getenv("AUTH_PASSWORD_PEPPER"),
 		Database: DatabaseConfig{
 			Host:            env("DB_HOST", "127.0.0.1"),
 			Port:            env("DB_PORT", "3306"),
@@ -63,6 +65,9 @@ func Load() (Config, error) {
 
 	if cfg.Database.Name == "" || cfg.Database.User == "" {
 		return Config{}, fmt.Errorf("DB_NAME dan DB_USER wajib diisi")
+	}
+	if len(cfg.PasswordPepper) < 32 {
+		return Config{}, fmt.Errorf("AUTH_PASSWORD_PEPPER wajib diisi minimal 32 karakter")
 	}
 	return cfg, nil
 }

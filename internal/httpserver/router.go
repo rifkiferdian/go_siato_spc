@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"siato-spc/internal/auth"
 	"siato-spc/internal/config"
 )
 
@@ -15,7 +16,8 @@ func New(cfg config.Config, db *sql.DB) http.Handler {
 	}
 
 	router := gin.New()
-	router.Use(gin.Logger(), gin.Recovery())
+	authService := auth.NewService(db, cfg.Environment == "production", cfg.PasswordPepper)
+	router.Use(gin.Logger(), gin.Recovery(), authService.LoadPrincipal())
 	router.LoadHTMLGlob("web/templates/**/*.html")
 	router.Static("/static", "./web/static")
 
@@ -34,6 +36,16 @@ func New(cfg config.Config, db *sql.DB) http.Handler {
 			"Year":    time.Now().Year(),
 		})
 	})
+
+	authHTTP := authHandlers{cfg: cfg, auth: authService}
+	router.GET("/panel-admin-stieww", authHTTP.showLogin)
+	router.POST("/panel-admin-stieww", authHTTP.login)
+	router.GET("/reset-password", authHTTP.showPasswordReset)
+	router.POST("/reset-password", authHTTP.resetPassword)
+	router.POST("/logout", auth.RequireAuthentication(), authHTTP.logout)
+
+	dashboardHTTP := dashboardHandlers{cfg: cfg, db: db}
+	router.GET("/dashboard", auth.RequireAuthentication(), dashboardHTTP.index)
 
 	router.GET("/health", func(c *gin.Context) {
 		ctx, cancel := contextWithTimeout(c, 2*time.Second)

@@ -14,6 +14,24 @@ air
 
 Aplikasi tersedia di `http://localhost:8080`. Air memantau perubahan file Go, template HTML, dan sumber CSS. Sebelum setiap rebuild, Air juga membangun ulang Tailwind CSS. Pastikan database MySQL pada `.env` sudah dibuat dan dapat diakses. Endpoint `GET /health` memeriksa koneksi aplikasi dan database.
 
+## Reset password user
+
+Semua user hasil migrasi wajib membuat password Go baru. Buat tautan reset sekali pakai dengan:
+
+```powershell
+go run ./cmd/password-reset -user superadmin@siato.local
+```
+
+Tautan berlaku 30 menit. Password baru menggunakan Argon2id dengan salt acak dan pepper dari `AUTH_PASSWORD_PEPPER`. Jangan mengganti pepper setelah user membuat password karena seluruh hash akan menjadi tidak dapat diverifikasi.
+
+Untuk mengisi ulang password keenam akun development dari variabel `SeedUsers__...`:
+
+```powershell
+go run ./cmd/seed-dev-users
+```
+
+Command tersebut hanya dapat dijalankan ketika `APP_ENV=development`.
+
 ## Build
 
 ```powershell
