@@ -1,0 +1,89 @@
+@import "tailwindcss";
+@source "../templates";
+
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../vendor/roboto/roboto-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../vendor/roboto/roboto-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../vendor/roboto/roboto-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url("../vendor/roboto/roboto-latin-900-normal.woff2") format("woff2");
+}
+
+@theme {
+  --font-sans: "Roboto", "Segoe UI", sans-serif;
+  --color-violet-50: #fcf5fc;
+  --color-violet-100: #f7e6f7;
+  --color-violet-200: #ecc5ec;
+  --color-violet-300: #dc91dc;
+  --color-violet-400: #c45bc4;
+  --color-violet-500: #a832a8;
+  --color-violet-600: #932093;
+  --color-violet-700: #800080;
+  --color-violet-800: #671067;
+  --color-violet-900: #521252;
+  --color-violet-950: #330733;
+}
+
+@layer components {
+  .eyebrow { @apply text-sm font-bold uppercase tracking-widest text-violet-700; }
+  .service-card { @apply rounded-2xl border border-slate-200 p-6 transition hover:-translate-y-1 hover:border-violet-200 hover:shadow-xl; }
+  .service-card span { @apply grid size-11 place-items-center rounded-xl bg-violet-50 text-sm font-bold text-violet-700; }
+  .service-card:hover span { @apply bg-violet-700 text-white; }
+  .service-card h3 { @apply mt-5 font-bold; }
+  .service-card p { @apply mt-2 text-sm leading-6 text-slate-600; }
+  .service-card b { @apply mt-5 inline-block text-sm font-semibold text-violet-700; }
+  .announcement { @apply rounded-2xl border border-slate-200 bg-white p-6 shadow-sm; }
+  .announcement div { @apply flex gap-3 text-xs; }
+  .announcement span { @apply rounded-full px-3 py-1 font-semibold; }
+  .announcement time { @apply py-1 text-slate-500; }
+  .announcement h3 { @apply mt-3 text-lg font-bold; }
+  .announcement p { @apply mt-2 text-sm text-slate-600; }
+  .deadline { @apply border-b border-white/10 p-6; }
+  .deadline p { @apply text-sm text-violet-300; }
+  .deadline h3 { @apply mt-2 font-semibold; }
+  .step { @apply rounded-2xl bg-violet-50 p-6; }
+  .step span { @apply grid size-10 place-items-center rounded-full bg-violet-700 font-bold text-white; }
+  .step h3 { @apply mt-5 font-bold; }
+  .step p { @apply mt-2 text-sm text-slate-600; }
+  .document { @apply flex gap-4 rounded-2xl border border-slate-200 p-6 hover:border-violet-300 hover:shadow-lg; }
+  .document > span { @apply grid size-12 shrink-0 place-items-center rounded-xl bg-violet-50 text-sm font-bold text-violet-700; }
+  .document small { @apply text-xs font-semibold text-violet-700; }
+  .document h3 { @apply mt-1 font-bold; }
+  .document p { @apply mt-2 text-xs text-slate-500; }
+  .stat { @apply rounded-2xl bg-white/10 p-6; }
+  .stat b { @apply text-3xl; }
+  .stat p { @apply mt-2 text-sm text-violet-100; }
+  details { @apply rounded-2xl border border-slate-200 bg-white p-6 open:shadow-md; }
+  details summary { @apply flex cursor-pointer list-none justify-between font-semibold; }
+  details summary span { @apply text-xl text-violet-700; }
+  details[open] summary span { @apply rotate-45; }
+  details > p { @apply mt-4 border-t pt-4 text-sm text-slate-600; }
+  .privacy-card { @apply scroll-mt-28 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8; }
+  .privacy-card > small { @apply text-sm font-bold text-violet-700; }
+  .privacy-card h2 { @apply mt-2 text-2xl font-bold text-slate-950; }
+  .privacy-card > p { @apply mt-4 leading-7; }
+}

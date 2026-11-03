@@ -1,0 +1,18 @@
+{
+  "name": "go-siato-spc",
+  "private": true,
+  "scripts": {
+    "assets:copy": "node scripts/copy-assets.mjs",
+    "css:build": "npm run assets:copy && tailwindcss -i ./web/styles/app.css -o ./web/static/css/app.css --minify",
+    "css:watch": "npm run assets:copy && tailwindcss -i ./web/styles/app.css -o ./web/static/css/app.css --watch",
+    "build": "npm run css:build && go build -o ./bin/siato-spc ./cmd/server"
+  },
+  "devDependencies": {
+    "@fontsource/roboto": "^5.3.0",
+    "@fortawesome/fontawesome-free": "^7.1.0",
+    "@tailwindcss/cli": "^4.3.3",
+    "concurrently": "^10.0.5",
+    "cross-env": "^10.1.0",
+    "tailwindcss": "^4.3.3"
+  }
+}
