@@ -65,14 +65,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!href || href === "#") return;
     const active = href === "/dashboard" ? currentPath === href : currentPath === href || currentPath.startsWith(`${href}/`);
     if (href === "/dashboard" && !active) {
-      link.classList.remove("bg-[#9a199a]", "font-bold", "text-white", "shadow-[0_5px_10px_rgba(147,32,147,.22)]");
+      link.classList.remove("bg-[#8e1a8e]", "font-bold", "text-white", "shadow-[0_5px_10px_rgba(147,32,147,.22)]");
       link.classList.add("text-[#173254]", "hover:bg-[#fbf3fb]", "hover:text-[#800080]");
       link.querySelector("span.absolute")?.classList.add("hidden");
     }
     if (active && href !== "/dashboard") {
       link.classList.add("bg-violet-50", "font-bold", "text-violet-800");
+      link.setAttribute("aria-current", "page");
       const group = link.closest("details");
-      if (group) group.open = true;
+      if (group) {
+        group.open = true;
+        const summary = group.querySelector(":scope > summary");
+        group.dataset.active = "true";
+        summary?.setAttribute("aria-current", "true");
+      }
     }
   });
 

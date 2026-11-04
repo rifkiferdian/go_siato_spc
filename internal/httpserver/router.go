@@ -172,6 +172,28 @@ func New(cfg config.Config, db *sql.DB) http.Handler {
 	auditLogs := router.Group("/audit-logs", auth.RequireAuthentication(), auth.RequirePermission("audit-logs.view"))
 	auditLogs.GET("", auditLogsHTTP.index)
 	auditLogs.GET("/:id", auditLogsHTTP.details)
+	fundingProgramsHTTP := fundingProgramsHandlers{cfg: cfg, db: db}
+	fundingPrograms := router.Group("/funding-programs", auth.RequireAuthentication())
+	fundingPrograms.GET("", auth.RequirePermission("funding-programs.view"), fundingProgramsHTTP.index)
+	fundingPrograms.GET("/create", auth.RequirePermission("funding-programs.create"), fundingProgramsHTTP.createForm)
+	fundingPrograms.POST("/create", auth.RequirePermission("funding-programs.create"), fundingProgramsHTTP.create)
+	fundingPrograms.GET("/:id/edit", auth.RequirePermission("funding-programs.update"), fundingProgramsHTTP.editForm)
+	fundingPrograms.POST("/:id/edit", auth.RequirePermission("funding-programs.update"), fundingProgramsHTTP.update)
+	fundingPrograms.POST("/:id/delete", auth.RequirePermission("funding-programs.delete"), fundingProgramsHTTP.delete)
+	studentFundingProgramsHTTP := studentFundingProgramsHandlers{cfg: cfg, db: db}
+	studentFundingPrograms := router.Group("/student-funding-programs", auth.RequireAuthentication())
+	studentFundingPrograms.GET("", auth.RequirePermission("student-funding-programs.view"), studentFundingProgramsHTTP.index)
+	studentFundingPrograms.GET("/create", auth.RequirePermission("student-funding-programs.create"), studentFundingProgramsHTTP.createForm)
+	studentFundingPrograms.POST("/create", auth.RequirePermission("student-funding-programs.create"), studentFundingProgramsHTTP.create)
+	studentFundingPrograms.GET("/:id/edit", auth.RequirePermission("student-funding-programs.update"), studentFundingProgramsHTTP.editForm)
+	studentFundingPrograms.POST("/:id/edit", auth.RequirePermission("student-funding-programs.update"), studentFundingProgramsHTTP.update)
+	studentFundingPrograms.POST("/:id/delete", auth.RequirePermission("student-funding-programs.delete"), studentFundingProgramsHTTP.delete)
+	studentInvoiceAdjustmentsHTTP := studentInvoiceAdjustmentsHandlers{cfg: cfg, db: db}
+	studentInvoiceAdjustments := router.Group("/student-invoice-adjustments", auth.RequireAuthentication())
+	studentInvoiceAdjustments.GET("", auth.RequirePermission("student-invoice-adjustments.view"), studentInvoiceAdjustmentsHTTP.index)
+	studentInvoiceAdjustments.GET("/create", auth.RequirePermission("student-invoice-adjustments.create"), studentInvoiceAdjustmentsHTTP.createForm)
+	studentInvoiceAdjustments.POST("/create", auth.RequirePermission("student-invoice-adjustments.create"), studentInvoiceAdjustmentsHTTP.create)
+	studentInvoiceAdjustments.POST("/:id/delete", auth.RequirePermission("student-invoice-adjustments.delete"), studentInvoiceAdjustmentsHTTP.delete)
 
 	router.GET("/health", func(c *gin.Context) {
 		ctx, cancel := contextWithTimeout(c, 2*time.Second)

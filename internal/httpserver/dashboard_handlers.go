@@ -171,7 +171,20 @@ func buildAdminNavigation(p *auth.Principal) []adminNavGroup {
 	if p.HasRole("Super Admin") {
 		groups = append(groups, adminNavGroup{Label: "Manajemen Pengguna", Icon: "fa-users-gear", Items: []adminNavItem{{Label: "Pengguna", Href: "/users", Icon: "fa-circle"}, {Label: "Role & Akses", Href: "/roles", Icon: "fa-circle"}}})
 	}
-	appendGroup("Program Bantuan", "fa-hand-holding-heart", []struct{ label, permission string }{{"Program Bantuan", "funding-programs.view"}, {"Penerima Program", "student-funding-programs.view"}, {"Penyesuaian Tagihan", "student-invoice-adjustments.view"}})
+	appendGroup("Program Bantuan", "fa-hand-holding-heart", []struct{ label, permission string }{{"Program & Manfaat", "funding-programs.view"}, {"Penerima Program", "student-funding-programs.view"}, {"Penyesuaian Tagihan", "student-invoice-adjustments.view"}})
+	for groupIndex := range groups {
+		for itemIndex := range groups[groupIndex].Items {
+			if groups[groupIndex].Items[itemIndex].Label == "Program & Manfaat" {
+				groups[groupIndex].Items[itemIndex].Href = "/funding-programs"
+			}
+			if groups[groupIndex].Items[itemIndex].Label == "Penerima Program" {
+				groups[groupIndex].Items[itemIndex].Href = "/student-funding-programs"
+			}
+			if groups[groupIndex].Items[itemIndex].Label == "Penyesuaian Tagihan" {
+				groups[groupIndex].Items[itemIndex].Href = "/student-invoice-adjustments"
+			}
+		}
+	}
 	return groups
 }
 
