@@ -48,6 +48,24 @@
   --color-violet-950: #330733;
 }
 
+@layer base {
+  /*
+   * Tailwind v4 memakai currentColor untuk border tanpa warna eksplisit.
+   * Beri warna netral sebagai default agar garis tabel dan kartu tidak hitam.
+   * Utility seperti border-red-200 tetap dapat menimpanya.
+   */
+  *,
+  ::before,
+  ::after,
+  ::backdrop {
+    border-color: var(--color-slate-200);
+  }
+
+  tbody.divide-y > :not(:last-child) {
+    border-color: var(--color-slate-100);
+  }
+}
+
 @layer utilities {
   .sidebar-scrollbar-hidden {
     -ms-overflow-style: none;

@@ -152,6 +152,22 @@ func buildAdminNavigation(p *auth.Principal) []adminNavGroup {
 		}
 	}
 	appendGroup("Transaksi Keuangan", "fa-receipt", []struct{ label, permission string }{{"Tagihan Mahasiswa", "student-invoices.view"}, {"Generate Tagihan", "invoice-generation-batches.view"}, {"Pembayaran", "payments.view"}, {"Audit Log Keuangan", "audit-logs.view"}})
+	for groupIndex := range groups {
+		for itemIndex := range groups[groupIndex].Items {
+			if groups[groupIndex].Items[itemIndex].Label == "Tagihan Mahasiswa" {
+				groups[groupIndex].Items[itemIndex].Href = "/student-invoices"
+			}
+			if groups[groupIndex].Items[itemIndex].Label == "Generate Tagihan" {
+				groups[groupIndex].Items[itemIndex].Href = "/invoice-generation-batches"
+			}
+			if groups[groupIndex].Items[itemIndex].Label == "Pembayaran" {
+				groups[groupIndex].Items[itemIndex].Href = "/payments"
+			}
+			if groups[groupIndex].Items[itemIndex].Label == "Audit Log Keuangan" {
+				groups[groupIndex].Items[itemIndex].Href = "/audit-logs"
+			}
+		}
+	}
 	if p.HasRole("Super Admin") {
 		groups = append(groups, adminNavGroup{Label: "Manajemen Pengguna", Icon: "fa-users-gear", Items: []adminNavItem{{Label: "Pengguna", Href: "/users", Icon: "fa-circle"}, {Label: "Role & Akses", Href: "/roles", Icon: "fa-circle"}}})
 	}
