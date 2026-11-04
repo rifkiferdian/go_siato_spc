@@ -111,6 +111,14 @@ func New(cfg config.Config, db *sql.DB) http.Handler {
 	students.GET("/:id/edit", auth.RequirePermission("students.update"), studentsHTTP.editForm)
 	students.POST("/:id/edit", auth.RequirePermission("students.update"), studentsHTTP.update)
 	students.POST("/:id/delete", auth.RequirePermission("students.delete"), studentsHTTP.delete)
+	billingPoliciesHTTP := billingPoliciesHandlers{cfg: cfg, db: db}
+	billingPolicies := router.Group("/billing-policies", auth.RequireAuthentication())
+	billingPolicies.GET("", auth.RequirePermission("billing-policies.view"), billingPoliciesHTTP.index)
+	billingPolicies.GET("/create", auth.RequirePermission("billing-policies.create"), billingPoliciesHTTP.createForm)
+	billingPolicies.POST("/create", auth.RequirePermission("billing-policies.create"), billingPoliciesHTTP.create)
+	billingPolicies.GET("/:id/edit", auth.RequirePermission("billing-policies.update"), billingPoliciesHTTP.editForm)
+	billingPolicies.POST("/:id/edit", auth.RequirePermission("billing-policies.update"), billingPoliciesHTTP.update)
+	billingPolicies.POST("/:id/delete", auth.RequirePermission("billing-policies.delete"), billingPoliciesHTTP.delete)
 
 	router.GET("/health", func(c *gin.Context) {
 		ctx, cancel := contextWithTimeout(c, 2*time.Second)
