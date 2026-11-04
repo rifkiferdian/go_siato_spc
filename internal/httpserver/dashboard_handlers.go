@@ -140,6 +140,15 @@ func buildAdminNavigation(p *auth.Principal) []adminNavGroup {
 			if groups[groupIndex].Items[itemIndex].Label == "Tarif & Kebijakan" {
 				groups[groupIndex].Items[itemIndex].Href = "/billing-policies"
 			}
+			if groups[groupIndex].Items[itemIndex].Label == "Jadwal Pembayaran" {
+				groups[groupIndex].Items[itemIndex].Href = "/billing-policy-schedules"
+			}
+			if groups[groupIndex].Items[itemIndex].Label == "Penetapan Mahasiswa" {
+				groups[groupIndex].Items[itemIndex].Href = "/student-billing-policies"
+			}
+			if groups[groupIndex].Items[itemIndex].Label == "Penetapan Massal" {
+				groups[groupIndex].Items[itemIndex].Href = "/student-billing-policy-batches"
+			}
 		}
 	}
 	appendGroup("Transaksi Keuangan", "fa-receipt", []struct{ label, permission string }{{"Tagihan Mahasiswa", "student-invoices.view"}, {"Generate Tagihan", "invoice-generation-batches.view"}, {"Pembayaran", "payments.view"}, {"Audit Log Keuangan", "audit-logs.view"}})

@@ -117,6 +117,7 @@ func (h billingPoliciesHandlers) index(c *gin.Context) {
 	data["CanCreate"] = p.HasRole("Super Admin") || p.HasPermission("billing-policies.create")
 	data["CanUpdate"] = p.HasRole("Super Admin") || p.HasPermission("billing-policies.update")
 	data["CanDelete"] = p.HasRole("Super Admin") || p.HasPermission("billing-policies.delete")
+	data["CanViewSchedules"] = p.HasRole("Super Admin") || p.HasPermission("billing-policy-schedules.view")
 	c.Header("Cache-Control", "no-store")
 	c.HTML(200, "billing-policies/index.html", data)
 }

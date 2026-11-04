@@ -119,6 +119,29 @@ func New(cfg config.Config, db *sql.DB) http.Handler {
 	billingPolicies.GET("/:id/edit", auth.RequirePermission("billing-policies.update"), billingPoliciesHTTP.editForm)
 	billingPolicies.POST("/:id/edit", auth.RequirePermission("billing-policies.update"), billingPoliciesHTTP.update)
 	billingPolicies.POST("/:id/delete", auth.RequirePermission("billing-policies.delete"), billingPoliciesHTTP.delete)
+	billingPolicySchedulesHTTP := billingPolicySchedulesHandlers{cfg: cfg, db: db}
+	billingPolicySchedules := router.Group("/billing-policy-schedules", auth.RequireAuthentication())
+	billingPolicySchedules.GET("", auth.RequirePermission("billing-policy-schedules.view"), billingPolicySchedulesHTTP.index)
+	billingPolicySchedules.GET("/create", auth.RequirePermission("billing-policy-schedules.create"), billingPolicySchedulesHTTP.createForm)
+	billingPolicySchedules.POST("/create", auth.RequirePermission("billing-policy-schedules.create"), billingPolicySchedulesHTTP.create)
+	billingPolicySchedules.GET("/:id/edit", auth.RequirePermission("billing-policy-schedules.update"), billingPolicySchedulesHTTP.editForm)
+	billingPolicySchedules.POST("/:id/edit", auth.RequirePermission("billing-policy-schedules.update"), billingPolicySchedulesHTTP.update)
+	billingPolicySchedules.POST("/:id/delete", auth.RequirePermission("billing-policy-schedules.delete"), billingPolicySchedulesHTTP.delete)
+	studentBillingPoliciesHTTP := studentBillingPoliciesHandlers{cfg: cfg, db: db}
+	studentBillingPolicies := router.Group("/student-billing-policies", auth.RequireAuthentication())
+	studentBillingPolicies.GET("", auth.RequirePermission("student-billing-policies.view"), studentBillingPoliciesHTTP.index)
+	studentBillingPolicies.GET("/create", auth.RequirePermission("student-billing-policies.create"), studentBillingPoliciesHTTP.createForm)
+	studentBillingPolicies.POST("/create", auth.RequirePermission("student-billing-policies.create"), studentBillingPoliciesHTTP.create)
+	studentBillingPolicies.GET("/:id/edit", auth.RequirePermission("student-billing-policies.update"), studentBillingPoliciesHTTP.editForm)
+	studentBillingPolicies.POST("/:id/edit", auth.RequirePermission("student-billing-policies.update"), studentBillingPoliciesHTTP.update)
+	studentBillingPolicies.POST("/:id/delete", auth.RequirePermission("student-billing-policies.delete"), studentBillingPoliciesHTTP.delete)
+	studentBillingPolicyBatchesHTTP := studentBillingPolicyBatchesHandlers{cfg: cfg, db: db}
+	studentBillingPolicyBatches := router.Group("/student-billing-policy-batches", auth.RequireAuthentication())
+	studentBillingPolicyBatches.GET("", auth.RequirePermission("student-billing-policy-batches.view"), studentBillingPolicyBatchesHTTP.index)
+	studentBillingPolicyBatches.GET("/create", auth.RequirePermission("student-billing-policy-batches.create"), studentBillingPolicyBatchesHTTP.createForm)
+	studentBillingPolicyBatches.POST("/generate", auth.RequirePermission("student-billing-policy-batches.create"), studentBillingPolicyBatchesHTTP.generate)
+	studentBillingPolicyBatches.GET("/:id", auth.RequirePermission("student-billing-policy-batches.view"), studentBillingPolicyBatchesHTTP.details)
+	studentBillingPolicyBatches.POST("/:id/cancel", auth.RequirePermission("student-billing-policy-batches.cancel"), studentBillingPolicyBatchesHTTP.cancel)
 
 	router.GET("/health", func(c *gin.Context) {
 		ctx, cancel := contextWithTimeout(c, 2*time.Second)
