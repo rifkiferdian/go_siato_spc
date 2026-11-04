@@ -120,6 +120,18 @@ func buildAdminNavigation(p *auth.Principal) []adminNavGroup {
 			if groups[groupIndex].Items[itemIndex].Label == "Program Studi" {
 				groups[groupIndex].Items[itemIndex].Href = "/study-programs"
 			}
+			if groups[groupIndex].Items[itemIndex].Label == "Periode Akademik" {
+				groups[groupIndex].Items[itemIndex].Href = "/academic-periods"
+			}
+			if groups[groupIndex].Items[itemIndex].Label == "Golongan Mahasiswa" {
+				groups[groupIndex].Items[itemIndex].Href = "/student-categories"
+			}
+			if groups[groupIndex].Items[itemIndex].Label == "Jenis Biaya" {
+				groups[groupIndex].Items[itemIndex].Href = "/charge-types"
+			}
+			if groups[groupIndex].Items[itemIndex].Label == "Mahasiswa" {
+				groups[groupIndex].Items[itemIndex].Href = "/students"
+			}
 		}
 	}
 	appendGroup("Kebijakan Tagihan", "fa-file-invoice", []struct{ label, permission string }{{"Tarif & Kebijakan", "billing-policies.view"}, {"Jadwal Pembayaran", "billing-policy-schedules.view"}, {"Penetapan Mahasiswa", "student-billing-policies.view"}, {"Penetapan Massal", "student-billing-policy-batches.view"}})
