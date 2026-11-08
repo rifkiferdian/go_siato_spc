@@ -81,6 +81,61 @@
 
 @layer components {
   .siato-swal-popup { border-radius: 1rem; font-family: var(--font-sans); }
+  :is(.master-form, form[action^="/academic-periods"], form[action^="/student-categories"], form[action^="/charge-types"], form[action^="/students"]) { width: 100%; max-width: 960px; }
+  :is(.master-form, form[action^="/academic-periods"], form[action^="/student-categories"], form[action^="/charge-types"], form[action^="/students"]) > section { padding: 20px !important; }
+  :is(.master-form, form[action^="/academic-periods"], form[action^="/student-categories"], form[action^="/charge-types"], form[action^="/students"]) > section > div:first-child { margin-bottom: 16px !important; padding-bottom: 12px !important; }
+  :is(.master-form, form[action^="/academic-periods"], form[action^="/student-categories"], form[action^="/charge-types"], form[action^="/students"]) > section > div:last-child { gap: 16px !important; }
+  :is(.master-form, form[action^="/academic-periods"], form[action^="/student-categories"], form[action^="/charge-types"], form[action^="/students"]) label { font-size: 13px; }
+  :is(.master-form, form[action^="/academic-periods"], form[action^="/student-categories"], form[action^="/charge-types"], form[action^="/students"]) input:not([type="hidden"]):not([type="checkbox"]),
+  :is(.master-form, form[action^="/academic-periods"], form[action^="/student-categories"], form[action^="/charge-types"], form[action^="/students"]) select,
+  :is(.master-form, form[action^="/academic-periods"], form[action^="/student-categories"], form[action^="/charge-types"], form[action^="/students"]) textarea { margin-top: 6px !important; border-radius: 10px !important; padding: 10px 14px !important; font-size: 13px; line-height: 20px; }
+  :is(.master-form, form[action^="/academic-periods"], form[action^="/student-categories"], form[action^="/charge-types"], form[action^="/students"]) textarea { min-height: 82px; }
+  :is(.master-form, form[action^="/academic-periods"], form[action^="/student-categories"], form[action^="/charge-types"], form[action^="/students"]) label:has(> input[type="checkbox"]) { padding: 12px !important; }
+  :is(.master-form, form[action^="/academic-periods"], form[action^="/student-categories"], form[action^="/charge-types"], form[action^="/students"]) > div:last-child { margin-top: 16px !important; gap: 8px !important; }
+  :is(.master-form, form[action^="/academic-periods"], form[action^="/student-categories"], form[action^="/charge-types"], form[action^="/students"]) > div:last-child > a,
+  :is(.master-form, form[action^="/academic-periods"], form[action^="/student-categories"], form[action^="/charge-types"], form[action^="/students"]) > div:last-child > button { border-radius: 10px !important; padding: 10px 18px !important; font-size: 13px; }
+  :is(form[action^="/billing-policies"]:has(> section), form[action^="/billing-policy-schedules"]:has(> section), form[action^="/student-billing-policies"]:has(> section), form:has(select[name="billing_policy_id"]):has(input[name="cohort_year_class"])) { width: 100%; max-width: 960px; }
+  :is(form[action^="/billing-policies"]:has(> section), form[action^="/billing-policy-schedules"]:has(> section), form[action^="/student-billing-policies"]:has(> section)) > section { padding: 20px !important; }
+  :is(form[action^="/billing-policies"]:has(> section), form[action^="/billing-policy-schedules"]:has(> section), form[action^="/student-billing-policies"]:has(> section)) > section > div:first-child { margin-bottom: 16px !important; padding-bottom: 12px !important; }
+  :is(form[action^="/billing-policies"]:has(> section), form[action^="/billing-policy-schedules"]:has(> section), form[action^="/student-billing-policies"]:has(> section)) > section > div:last-child { gap: 16px !important; }
+  :is(form[action^="/billing-policies"]:has(> section), form[action^="/billing-policy-schedules"]:has(> section), form[action^="/student-billing-policies"]:has(> section), form:has(select[name="billing_policy_id"]):has(input[name="cohort_year_class"])) label { font-size: 13px; }
+  :is(form[action^="/billing-policies"]:has(> section), form[action^="/billing-policy-schedules"]:has(> section), form[action^="/student-billing-policies"]:has(> section), form:has(select[name="billing_policy_id"]):has(input[name="cohort_year_class"])) input:not([type="hidden"]):not([type="checkbox"]),
+  :is(form[action^="/billing-policies"]:has(> section), form[action^="/billing-policy-schedules"]:has(> section), form[action^="/student-billing-policies"]:has(> section), form:has(select[name="billing_policy_id"]):has(input[name="cohort_year_class"])) select,
+  :is(form[action^="/billing-policies"]:has(> section), form[action^="/billing-policy-schedules"]:has(> section), form[action^="/student-billing-policies"]:has(> section), form:has(select[name="billing_policy_id"]):has(input[name="cohort_year_class"])) textarea { margin-top: 6px !important; border-radius: 10px !important; padding: 10px 14px !important; font-size: 13px; line-height: 20px; }
+  :is(form[action^="/billing-policies"]:has(> section), form[action^="/billing-policy-schedules"]:has(> section), form[action^="/student-billing-policies"]:has(> section)) .relative > input { margin-top: 0 !important; }
+  :is(form[action^="/billing-policies"]:has(> section), form[action^="/billing-policy-schedules"]:has(> section), form[action^="/student-billing-policies"]:has(> section)) textarea { min-height: 82px; }
+  :is(form[action^="/billing-policies"]:has(> section), form[action^="/billing-policy-schedules"]:has(> section), form[action^="/student-billing-policies"]:has(> section)) label:has(> input[type="checkbox"]) { padding: 12px !important; }
+  :is(form[action^="/billing-policies"]:has(> section), form[action^="/billing-policy-schedules"]:has(> section), form[action^="/student-billing-policies"]:has(> section)) > div:last-child { margin-top: 16px !important; gap: 8px !important; }
+  :is(form[action^="/billing-policies"]:has(> section), form[action^="/billing-policy-schedules"]:has(> section), form[action^="/student-billing-policies"]:has(> section)) > div:last-child > a,
+  :is(form[action^="/billing-policies"]:has(> section), form[action^="/billing-policy-schedules"]:has(> section), form[action^="/student-billing-policies"]:has(> section)) > div:last-child > button { border-radius: 10px !important; padding: 10px 18px !important; font-size: 13px; }
+  form:has(select[name="billing_policy_id"]):has(input[name="cohort_year_class"]) { padding: 16px !important; }
+  form:has(select[name="billing_policy_id"]):has(input[name="cohort_year_class"]) > div { gap: 12px !important; }
+  form[action^="/student-invoices"]:has(> section) { width: 100%; max-width: 960px; }
+  form[action^="/student-invoices"]:has(> section) > section { padding: 20px !important; }
+  form[action^="/student-invoices"]:has(> section) > section > div:first-child { margin-bottom: 14px !important; }
+  form[action^="/student-invoices"]:has(> section) > section > div:nth-child(2) { margin-bottom: 16px !important; padding: 12px 14px !important; }
+  form[action^="/student-invoices"]:has(> section) > section > div:last-child { gap: 16px !important; }
+  form[action^="/student-invoices"]:has(> section) label { font-size: 13px; }
+  form[action^="/student-invoices"]:has(> section) input:not([type="hidden"]),
+  form[action^="/student-invoices"]:has(> section) select,
+  form[action^="/student-invoices"]:has(> section) textarea { margin-top: 6px !important; border-radius: 10px !important; padding: 10px 14px !important; font-size: 13px; line-height: 20px; }
+  form[action^="/student-invoices"]:has(> section) textarea { min-height: 82px; }
+  form[action^="/student-invoices"]:has(> section) [data-invoice-final] { margin-top: 4px !important; padding: 0 !important; font-size: 18px; }
+  form[action^="/student-invoices"]:has(> section) > div:last-child { margin-top: 16px !important; gap: 8px !important; }
+  form[action^="/student-invoices"]:has(> section) > div:last-child > a,
+  form[action^="/student-invoices"]:has(> section) > div:last-child > button { border-radius: 10px !important; padding: 10px 18px !important; font-size: 13px; }
+  form[action="/payments/create"] { width: 100%; max-width: 960px; }
+  form[action="/payments/create"] > section { padding: 20px !important; }
+  form[action="/payments/create"] > section > div:nth-child(2) { margin-top: 12px !important; padding: 12px 14px !important; }
+  form[action="/payments/create"] > section > div:last-child { margin-top: 16px !important; gap: 16px !important; }
+  form[action="/payments/create"] label { font-size: 13px; }
+  form[action="/payments/create"] input:not([type="hidden"]),
+  form[action="/payments/create"] select,
+  form[action="/payments/create"] textarea { margin-top: 6px !important; border-radius: 10px !important; padding: 10px 14px !important; font-size: 13px; line-height: 20px; }
+  form[action="/payments/create"] textarea { min-height: 82px; }
+  form[action="/payments/create"] > div:last-child { margin-top: 16px !important; gap: 8px !important; }
+  form[action="/payments/create"] > div:last-child > a,
+  form[action="/payments/create"] > div:last-child > button { border-radius: 10px !important; padding: 10px 18px !important; font-size: 13px; }
   .admin-nav-group,
   .admin-header-menu { @apply rounded-none border-0 bg-transparent p-0 open:shadow-none; }
   .admin-nav-group > summary,

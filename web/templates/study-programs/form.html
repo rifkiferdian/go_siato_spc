@@ -9,7 +9,7 @@
       {{ template "admin/header" . }}
       <main class="mx-auto w-full max-w-[1440px] flex-1 px-4 py-6 sm:px-8 xl:px-10">
         <a href="/study-programs" class="inline-flex items-center gap-2 text-xs font-bold text-violet-700 hover:text-violet-900"><i class="fa-solid fa-arrow-left"></i>Kembali ke Program Studi</a>
-        <form method="post" action="{{ if .IsEdit }}/study-programs/{{ .EditID }}/edit{{ else }}/study-programs/create{{ end }}" class="mt-4">
+        <form method="post" action="{{ if .IsEdit }}/study-programs/{{ .EditID }}/edit{{ else }}/study-programs/create{{ end }}" class="master-form mt-4">
           <input type="hidden" name="csrf_token" value="{{ .User.CSRFToken }}">
           {{ if .Error }}<div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"><i class="fa-solid fa-circle-exclamation mr-2"></i>{{ .Error }}</div>{{ end }}
           <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
