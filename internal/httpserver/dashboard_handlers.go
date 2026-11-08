@@ -102,89 +102,46 @@ func (h dashboardHandlers) index(c *gin.Context) {
 
 func buildAdminNavigation(p *auth.Principal) []adminNavGroup {
 	can := func(permission string) bool { return p.HasRole("Super Admin") || p.HasPermission(permission) }
+	type navCandidate struct{ label, href, permission string }
 	groups := make([]adminNavGroup, 0, 5)
-	appendGroup := func(label, icon string, candidates []struct{ label, permission string }) {
+	appendGroup := func(label, icon string, candidates []navCandidate) {
 		group := adminNavGroup{Label: label, Icon: icon}
 		for _, candidate := range candidates {
 			if can(candidate.permission) {
-				group.Items = append(group.Items, adminNavItem{Label: candidate.label, Href: "#", Icon: "fa-circle"})
+				group.Items = append(group.Items, adminNavItem{Label: candidate.label, Href: candidate.href, Icon: "fa-circle"})
 			}
 		}
 		if len(group.Items) > 0 {
 			groups = append(groups, group)
 		}
 	}
-	appendGroup("Master Akademik", "fa-folder-open", []struct{ label, permission string }{{"Program Studi", "study-programs.view"}, {"Periode Akademik", "academic-periods.view"}, {"Golongan Mahasiswa", "student-categories.view"}, {"Jenis Biaya", "charge-types.view"}, {"Mahasiswa", "students.view"}})
-	for groupIndex := range groups {
-		for itemIndex := range groups[groupIndex].Items {
-			if groups[groupIndex].Items[itemIndex].Label == "Program Studi" {
-				groups[groupIndex].Items[itemIndex].Href = "/study-programs"
-			}
-			if groups[groupIndex].Items[itemIndex].Label == "Periode Akademik" {
-				groups[groupIndex].Items[itemIndex].Href = "/academic-periods"
-			}
-			if groups[groupIndex].Items[itemIndex].Label == "Golongan Mahasiswa" {
-				groups[groupIndex].Items[itemIndex].Href = "/student-categories"
-			}
-			if groups[groupIndex].Items[itemIndex].Label == "Jenis Biaya" {
-				groups[groupIndex].Items[itemIndex].Href = "/charge-types"
-			}
-			if groups[groupIndex].Items[itemIndex].Label == "Mahasiswa" {
-				groups[groupIndex].Items[itemIndex].Href = "/students"
-			}
-		}
-	}
-	appendGroup("Kebijakan Tagihan", "fa-file-invoice", []struct{ label, permission string }{{"Tarif & Kebijakan", "billing-policies.view"}, {"Jadwal Pembayaran", "billing-policy-schedules.view"}, {"Penetapan Mahasiswa", "student-billing-policies.view"}, {"Penetapan Massal", "student-billing-policy-batches.view"}})
-	for groupIndex := range groups {
-		for itemIndex := range groups[groupIndex].Items {
-			if groups[groupIndex].Items[itemIndex].Label == "Tarif & Kebijakan" {
-				groups[groupIndex].Items[itemIndex].Href = "/billing-policies"
-			}
-			if groups[groupIndex].Items[itemIndex].Label == "Jadwal Pembayaran" {
-				groups[groupIndex].Items[itemIndex].Href = "/billing-policy-schedules"
-			}
-			if groups[groupIndex].Items[itemIndex].Label == "Penetapan Mahasiswa" {
-				groups[groupIndex].Items[itemIndex].Href = "/student-billing-policies"
-			}
-			if groups[groupIndex].Items[itemIndex].Label == "Penetapan Massal" {
-				groups[groupIndex].Items[itemIndex].Href = "/student-billing-policy-batches"
-			}
-		}
-	}
-	appendGroup("Transaksi Keuangan", "fa-receipt", []struct{ label, permission string }{{"Tagihan Mahasiswa", "student-invoices.view"}, {"Generate Tagihan", "invoice-generation-batches.view"}, {"Pembayaran", "payments.view"}, {"Audit Log Keuangan", "audit-logs.view"}})
-	for groupIndex := range groups {
-		for itemIndex := range groups[groupIndex].Items {
-			if groups[groupIndex].Items[itemIndex].Label == "Tagihan Mahasiswa" {
-				groups[groupIndex].Items[itemIndex].Href = "/student-invoices"
-			}
-			if groups[groupIndex].Items[itemIndex].Label == "Generate Tagihan" {
-				groups[groupIndex].Items[itemIndex].Href = "/invoice-generation-batches"
-			}
-			if groups[groupIndex].Items[itemIndex].Label == "Pembayaran" {
-				groups[groupIndex].Items[itemIndex].Href = "/payments"
-			}
-			if groups[groupIndex].Items[itemIndex].Label == "Audit Log Keuangan" {
-				groups[groupIndex].Items[itemIndex].Href = "/audit-logs"
-			}
-		}
-	}
 	if p.HasRole("Super Admin") {
 		groups = append(groups, adminNavGroup{Label: "Manajemen Pengguna", Icon: "fa-users-gear", Items: []adminNavItem{{Label: "Pengguna", Href: "/users", Icon: "fa-circle"}, {Label: "Role & Akses", Href: "/roles", Icon: "fa-circle"}}})
 	}
-	appendGroup("Program Bantuan", "fa-hand-holding-heart", []struct{ label, permission string }{{"Program & Manfaat", "funding-programs.view"}, {"Penerima Program", "student-funding-programs.view"}, {"Penyesuaian Tagihan", "student-invoice-adjustments.view"}})
-	for groupIndex := range groups {
-		for itemIndex := range groups[groupIndex].Items {
-			if groups[groupIndex].Items[itemIndex].Label == "Program & Manfaat" {
-				groups[groupIndex].Items[itemIndex].Href = "/funding-programs"
-			}
-			if groups[groupIndex].Items[itemIndex].Label == "Penerima Program" {
-				groups[groupIndex].Items[itemIndex].Href = "/student-funding-programs"
-			}
-			if groups[groupIndex].Items[itemIndex].Label == "Penyesuaian Tagihan" {
-				groups[groupIndex].Items[itemIndex].Href = "/student-invoice-adjustments"
-			}
-		}
-	}
+	appendGroup("Master Akademik", "fa-folder-open", []navCandidate{
+		{"Program Studi", "/study-programs", "study-programs.view"},
+		{"Periode Akademik", "/academic-periods", "academic-periods.view"},
+		{"Golongan Mahasiswa", "/student-categories", "student-categories.view"},
+		{"Jenis Biaya", "/charge-types", "charge-types.view"},
+		{"Mahasiswa", "/students", "students.view"},
+	})
+	appendGroup("Kebijakan Tagihan", "fa-file-invoice", []navCandidate{
+		{"Tarif & Kebijakan", "/billing-policies", "billing-policies.view"},
+		{"Jadwal Pembayaran", "/billing-policy-schedules", "billing-policy-schedules.view"},
+		{"Penetapan Mahasiswa", "/student-billing-policies", "student-billing-policies.view"},
+		{"Penetapan Massal", "/student-billing-policy-batches", "student-billing-policy-batches.view"},
+	})
+	appendGroup("Program Bantuan", "fa-hand-holding-heart", []navCandidate{
+		{"Program & Manfaat", "/funding-programs", "funding-programs.view"},
+		{"Penerima Program", "/student-funding-programs", "student-funding-programs.view"},
+		{"Penyesuaian Tagihan", "/student-invoice-adjustments", "student-invoice-adjustments.view"},
+	})
+	appendGroup("Transaksi Keuangan", "fa-receipt", []navCandidate{
+		{"Generate Tagihan", "/invoice-generation-batches", "invoice-generation-batches.view"},
+		{"Tagihan Mahasiswa", "/student-invoices", "student-invoices.view"},
+		{"Pembayaran", "/payments", "payments.view"},
+		{"Audit Log Keuangan", "/audit-logs", "audit-logs.view"},
+	})
 	return groups
 }
 

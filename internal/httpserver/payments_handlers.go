@@ -2,12 +2,15 @@ package httpserver
 
 import (
 	"database/sql"
+	"encoding/base64"
 	"fmt"
+	"html/template"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	qrcode "github.com/skip2/go-qrcode"
 	"siato-spc/internal/auth"
 	"siato-spc/internal/config"
 )
@@ -28,6 +31,13 @@ type paymentOption struct {
 	Label string
 }
 type paymentForm struct{ Number, StudentID, InvoiceID, Amount, Method, Reference, PayerType, PayerName, Notes string }
+type paymentPrintAllocation struct{ InvoiceNumber, Description, ChargeType, Amount string }
+type paymentPrintView struct {
+	Number, Reference, NIM, Student, Program, Date, Method, Amount, Status, StatusLabel string
+	PayerName, PayerType, Receiver, Verifier, VerifiedAt, Notes                         string
+	QRCode                                                                              template.URL
+	Allocations                                                                         []paymentPrintAllocation
+}
 
 func (h paymentsHandlers) base(p *auth.Principal, title string) gin.H {
 	role := strings.Join(p.Roles, ", ")
@@ -216,17 +226,66 @@ func (h paymentsHandlers) recalculate(tx *sql.Tx, paymentID string) error {
 }
 
 func (h paymentsHandlers) print(c *gin.Context) {
-	var x paymentItem
+	var x paymentPrintView
+	var paymentDate time.Time
 	var amount float64
-	err := h.db.QueryRowContext(c, `SELECT p.id,p.payment_number,COALESCE(p.reference_number,''),s.nim,s.name,DATE_FORMAT(p.payment_date,'%d %b %Y %H:%i'),p.payment_method,p.amount,p.status,u.email,COALESCE(v.email,''),(SELECT COUNT(*) FROM payment_allocations a WHERE a.payment_id=p.id) FROM payments p JOIN students s ON s.id=p.student_id JOIN users u ON u.id=p.received_by_id LEFT JOIN users v ON v.id=p.verified_by_id WHERE p.id=?`, c.Param("id")).Scan(&x.ID, &x.Number, &x.Reference, &x.NIM, &x.Student, &x.Date, &x.Method, &amount, &x.Status, &x.Receiver, &x.Verifier, &x.AllocationCount)
+	err := h.db.QueryRowContext(c, `SELECT p.payment_number,COALESCE(p.reference_number,''),s.nim,s.name,sp.name,p.payment_date,p.payment_method,p.amount,p.status,COALESCE(p.payer_name,s.name),p.payer_type,u.email,COALESCE(v.email,''),COALESCE(DATE_FORMAT(p.verified_at,'%Y-%m-%d %H:%i:%s'),''),COALESCE(p.notes,'') FROM payments p JOIN students s ON s.id=p.student_id JOIN study_programs sp ON sp.id=s.study_program_id JOIN users u ON u.id=p.received_by_id LEFT JOIN users v ON v.id=p.verified_by_id WHERE p.id=?`, c.Param("id")).Scan(&x.Number, &x.Reference, &x.NIM, &x.Student, &x.Program, &paymentDate, &x.Method, &amount, &x.Status, &x.PayerName, &x.PayerType, &x.Receiver, &x.Verifier, &x.VerifiedAt, &x.Notes)
 	if err != nil {
 		c.AbortWithStatus(404)
 		return
 	}
+	rows, err := h.db.QueryContext(c, `SELECT i.invoice_number,i.description,ct.name,a.amount FROM payment_allocations a JOIN student_invoices i ON i.id=a.student_invoice_id JOIN charge_types ct ON ct.id=i.charge_type_id WHERE a.payment_id=? ORDER BY a.id`, c.Param("id"))
+	if err != nil {
+		c.AbortWithError(500, err)
+		return
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item paymentPrintAllocation
+		var allocated float64
+		if err = rows.Scan(&item.InvoiceNumber, &item.Description, &item.ChargeType, &allocated); err != nil {
+			c.AbortWithError(500, err)
+			return
+		}
+		item.Amount = formatRupiah(allocated)
+		x.Allocations = append(x.Allocations, item)
+	}
+	if err = rows.Err(); err != nil {
+		c.AbortWithError(500, err)
+		return
+	}
+	loc, _ := time.LoadLocation("Asia/Jakarta")
+	x.Date = formatFullIndonesianDate(paymentDate.In(loc)) + " " + paymentDate.In(loc).Format("15:04") + " WIB"
+	if x.VerifiedAt != "" {
+		if verified, parseErr := time.ParseInLocation("2006-01-02 15:04:05", x.VerifiedAt, loc); parseErr == nil {
+			x.VerifiedAt = formatFullIndonesianDate(verified) + " " + verified.Format("15:04") + " WIB"
+		}
+	}
 	x.Amount = formatRupiah(amount)
-	x.MethodLabel = paymentMethodLabel(x.Method)
+	x.Method = paymentMethodLabel(x.Method)
 	x.StatusLabel = paymentStatusLabel(x.Status)
-	c.HTML(200, "payments/print.html", gin.H{"Title": "Kuitansi Pembayaran", "AppName": h.cfg.Name, "Year": time.Now().Year(), "Payment": x})
+	x.PayerType = payerTypeLabel(x.PayerType)
+	if png, qrErr := qrcode.Encode("SIATO-SPC|PEMBAYARAN|"+x.Number+"|"+x.Amount, qrcode.Medium, 180); qrErr == nil {
+		x.QRCode = template.URL("data:image/png;base64," + base64.StdEncoding.EncodeToString(png))
+	}
+	printedAt := time.Now().In(loc)
+	c.Header("Cache-Control", "no-store")
+	c.HTML(200, "payments/print.html", gin.H{"Title": "Kuitansi Pembayaran", "AppName": h.cfg.Name, "Year": printedAt.Year(), "Payment": x, "PrintedAt": formatFullIndonesianDate(printedAt) + " " + printedAt.Format("15:04") + " WIB"})
+}
+
+func payerTypeLabel(value string) string {
+	switch value {
+	case "PARENT":
+		return "Orang Tua/Wali"
+	case "MARKETING":
+		return "Marketing"
+	case "FOUNDATION":
+		return "Yayasan"
+	case "COMPANY":
+		return "Perusahaan"
+	default:
+		return "Mahasiswa"
+	}
 }
 func (h paymentsHandlers) renderForm(c *gin.Context, status int, f paymentForm, msg string) {
 	d := h.base(auth.CurrentPrincipal(c), "Tambah Pembayaran")

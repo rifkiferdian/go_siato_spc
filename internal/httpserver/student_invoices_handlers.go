@@ -2,15 +2,18 @@ package httpserver
 
 import (
 	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html/template"
 	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
 
 	"github.com/gin-gonic/gin"
+	qrcode "github.com/skip2/go-qrcode"
 	"siato-spc/internal/auth"
 	"siato-spc/internal/config"
 )
@@ -28,6 +31,11 @@ type studentInvoiceMetrics struct{ Total, Unpaid, Partial, Overdue int }
 type studentInvoiceForm struct {
 	ID                                                                                                                                                                                     int64
 	Number, StudentID, PeriodID, ChargeTypeID, AssignmentID, ScheduleID, Sequence, Description, Original, Discount, Penalty, Final, Paid, DueDate, Status, SourceType, Notes, ChangeReason string
+}
+type studentInvoicePrintView struct {
+	Number, Description, NIM, StudentName, Program, Charge, Period, CreatedAt, DueDate string
+	Original, Discount, Penalty, Final, Paid, Remaining, StatusLabel                   string
+	QRCode                                                                             template.URL
 }
 
 func (h studentInvoicesHandlers) index(c *gin.Context) {
@@ -271,14 +279,36 @@ func (h studentInvoicesHandlers) print(c *gin.Context) {
 		c.AbortWithError(500, err)
 		return
 	}
-	var student, program, charge, period string
-	err = h.db.QueryRowContext(c.Request.Context(), `SELECT CONCAT(s.nim,' - ',s.name),sp.name,ct.name,COALESCE(ap.code,'Tanpa periode') FROM student_invoices i JOIN students s ON s.id=i.student_id JOIN study_programs sp ON sp.id=s.study_program_id JOIN charge_types ct ON ct.id=i.charge_type_id LEFT JOIN academic_periods ap ON ap.id=i.academic_period_id WHERE i.id=?`, f.ID).Scan(&student, &program, &charge, &period)
+	var view studentInvoicePrintView
+	var createdAt time.Time
+	var original, discount, penalty, final, paid float64
+	err = h.db.QueryRowContext(c.Request.Context(), `SELECT i.invoice_number,i.description,s.nim,s.name,sp.name,ct.name,COALESCE(CONCAT(ap.academic_year,' / ',ap.semester),'Tanpa periode'),i.created_at,i.original_amount,i.discount_amount,i.penalty_amount,i.final_amount,i.paid_amount FROM student_invoices i JOIN students s ON s.id=i.student_id JOIN study_programs sp ON sp.id=s.study_program_id JOIN charge_types ct ON ct.id=i.charge_type_id LEFT JOIN academic_periods ap ON ap.id=i.academic_period_id WHERE i.id=?`, f.ID).Scan(&view.Number, &view.Description, &view.NIM, &view.StudentName, &view.Program, &view.Charge, &view.Period, &createdAt, &original, &discount, &penalty, &final, &paid)
 	if err != nil {
 		c.AbortWithError(500, err)
 		return
 	}
+	jakarta, _ := time.LoadLocation("Asia/Jakarta")
+	dueDate, _ := time.Parse("2006-01-02", f.DueDate)
+	view.CreatedAt = formatFullIndonesianDate(createdAt.In(jakarta)) + " " + createdAt.In(jakarta).Format("15:04") + " WIB"
+	view.DueDate = formatFullIndonesianDate(dueDate)
+	view.Original = formatRupiah(original)
+	view.Discount = formatRupiah(discount)
+	view.Penalty = formatRupiah(penalty)
+	view.Final = formatRupiah(final)
+	view.Paid = formatRupiah(paid)
+	view.Remaining = formatRupiah(max(final-paid, 0))
+	view.StatusLabel = invoiceStatusLabel(f.Status)
+	if png, qrErr := qrcode.Encode("SIATO-SPC|TAGIHAN|"+view.Number, qrcode.Medium, 180); qrErr == nil {
+		view.QRCode = template.URL("data:image/png;base64," + base64.StdEncoding.EncodeToString(png))
+	}
+	printedAt := time.Now().In(jakarta)
 	c.Header("Cache-Control", "no-store")
-	c.HTML(200, "student-invoices/print.html", gin.H{"Title": "Cetak Tagihan", "AppName": h.cfg.Name, "Year": time.Now().Year(), "Invoice": f, "Student": student, "Program": program, "Charge": charge, "Period": period, "StatusLabel": invoiceStatusLabel(f.Status)})
+	c.HTML(200, "student-invoices/print.html", gin.H{"Title": "Dokumen Tagihan", "AppName": h.cfg.Name, "Year": printedAt.Year(), "Invoice": view, "PrintedAt": formatFullIndonesianDate(printedAt) + " " + printedAt.Format("15:04") + " WIB"})
+}
+
+func formatFullIndonesianDate(value time.Time) string {
+	months := [...]string{"Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"}
+	return fmt.Sprintf("%02d %s %d", value.Day(), months[value.Month()-1], value.Year())
 }
 func (h studentInvoicesHandlers) find(c *gin.Context, id any) (studentInvoiceForm, error) {
 	var f studentInvoiceForm
