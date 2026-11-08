@@ -136,6 +136,50 @@
   form[action="/payments/create"] > div:last-child { margin-top: 16px !important; gap: 8px !important; }
   form[action="/payments/create"] > div:last-child > a,
   form[action="/payments/create"] > div:last-child > button { border-radius: 10px !important; padding: 10px 18px !important; font-size: 13px; }
+  td:last-child > div:has(> a[href^="/students/"]) { align-items: center; gap: 8px !important; }
+  td:last-child > div > a[href^="/students/"] {
+    display: inline-grid !important;
+    width: 38px !important;
+    height: 38px !important;
+    flex: 0 0 38px;
+    place-items: center;
+    border-radius: 10px !important;
+    padding: 0 !important;
+    background-color: #ffffff;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+    line-height: 1;
+    transition: transform 160ms ease, border-color 160ms ease, background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+  }
+  td:last-child > div > a[href^="/students/"] > i { font-size: 14px; line-height: 1; }
+  td:last-child > div > a[href^="/students/"]:not([href$="/edit"]) { border-color: #bfdbfe; color: #2563eb; }
+  td:last-child > div > a[href^="/students/"]:not([href$="/edit"]):hover { border-color: #93c5fd; background-color: #eff6ff; color: #1d4ed8; }
+  td:last-child > div > a[href^="/students/"][href$="/edit"] { border-color: #ddd6fe; color: #7c3aed; }
+  td:last-child > div > a[href^="/students/"][href$="/edit"]:hover { border-color: #c4b5fd; background-color: #f5f3ff; color: #6d28d9; }
+  div:has(> form[action^="/students/"][action$="/delete"]) > a,
+  form[action^="/students/"][action$="/delete"] > button {
+    display: inline-grid !important;
+    width: 38px !important;
+    height: 38px !important;
+    flex: 0 0 38px;
+    place-items: center;
+    border-radius: 10px !important;
+    padding: 0 !important;
+    background-color: #ffffff;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+    line-height: 1;
+    transition: transform 160ms ease, border-color 160ms ease, background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+  }
+  div:has(> form[action^="/students/"][action$="/delete"]) > a > i,
+  form[action^="/students/"][action$="/delete"] > button > i { font-size: 14px; line-height: 1; }
+  div:has(> form[action^="/students/"][action$="/delete"]) > a:not([href$="/edit"]) { border-color: #bfdbfe; color: #2563eb; }
+  div:has(> form[action^="/students/"][action$="/delete"]) > a:not([href$="/edit"]):hover { border-color: #93c5fd; background-color: #eff6ff; color: #1d4ed8; }
+  div:has(> form[action^="/students/"][action$="/delete"]) > a[href$="/edit"] { border-color: #ddd6fe; color: #7c3aed; }
+  div:has(> form[action^="/students/"][action$="/delete"]) > a[href$="/edit"]:hover { border-color: #c4b5fd; background-color: #f5f3ff; color: #6d28d9; }
+  form[action^="/students/"][action$="/delete"] { display: flex; margin: 0; }
+  form[action^="/students/"][action$="/delete"] > button { border-color: #fecaca; color: #dc2626; }
+  form[action^="/students/"][action$="/delete"] > button:hover { border-color: #fca5a5; background-color: #fef2f2; color: #b91c1c; }
+  div:has(> form[action^="/students/"][action$="/delete"]) > a:hover,
+  form[action^="/students/"][action$="/delete"] > button:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgb(15 23 42 / 0.08); }
   .admin-nav-group,
   .admin-header-menu { @apply rounded-none border-0 bg-transparent p-0 open:shadow-none; }
   .admin-nav-group > summary,

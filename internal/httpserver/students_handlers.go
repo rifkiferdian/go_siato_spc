@@ -34,6 +34,17 @@ type studentInvoice struct {
 	Number, Description, DueDate, Status, StatusLabel string
 	Amount, Paid                                      float64
 }
+type studentPaymentHistory struct {
+	ID                                                           int64
+	Number, Date, Method, Reference, Amount, Status, StatusLabel string
+	AllocationCount                                              int
+}
+type studentFundingHistory struct {
+	ID                                                                                int64
+	Program, Code, Benefit, ChargeType, Period, Reference, Dates, Status, StatusLabel string
+	AdjustmentCount                                                                   int
+	AdjustmentTotal                                                                   string
+}
 type studentForm struct {
 	ID                                                                              int64
 	NIM, Name, ProgramID, CategoryID, CohortYear, CohortClass, Status, Email, Phone string
@@ -191,15 +202,69 @@ func (h studentsHandlers) details(c *gin.Context) {
 		return
 	}
 	item.StatusLabel = studentStatusLabel(item.Status)
+	tab := strings.ToLower(strings.TrimSpace(c.Query("tab")))
+	if tab != "payments" && tab != "funding" {
+		tab = "summary"
+	}
+	selectedPeriod := strings.TrimSpace(c.Query("academic_period_id"))
+	var periodID int64
+	if selectedPeriod == "all" {
+		selectedPeriod = "all"
+	} else if parsed := parsePositiveID(selectedPeriod); parsed > 0 {
+		var exists int
+		if h.db.QueryRowContext(c.Request.Context(), `SELECT COUNT(*) FROM academic_periods WHERE id=?`, parsed).Scan(&exists) == nil && exists == 1 {
+			periodID = parsed
+		} else {
+			selectedPeriod = ""
+		}
+	}
+	if selectedPeriod == "" {
+		_ = h.db.QueryRowContext(c.Request.Context(), `SELECT COALESCE(MAX(id),0) FROM academic_periods WHERE is_active=1`).Scan(&periodID)
+		if periodID > 0 {
+			selectedPeriod = strconv.FormatInt(periodID, 10)
+		} else {
+			selectedPeriod = "all"
+		}
+	}
+	periods := []studentOption{}
+	periodRows, periodErr := h.db.QueryContext(c.Request.Context(), `SELECT id,CONCAT(academic_year,' / ',semester,' · ',code) FROM academic_periods ORDER BY start_date DESC`)
+	if periodErr != nil {
+		c.AbortWithError(500, periodErr)
+		return
+	}
+	for periodRows.Next() {
+		var option studentOption
+		if periodRows.Scan(&option.ID, &option.Label) == nil {
+			periods = append(periods, option)
+		}
+	}
+	periodRows.Close()
+
+	periodWhere := ""
+	periodArgs := []any{item.ID}
+	if periodID > 0 {
+		periodWhere = " AND academic_period_id=?"
+		periodArgs = append(periodArgs, periodID)
+	}
 	var invoiceCount, paymentCount, fundingCount int
 	var billed, paid float64
-	if err = h.db.QueryRowContext(c.Request.Context(), `SELECT COUNT(*),COALESCE(SUM(final_amount),0),COALESCE(SUM(paid_amount),0) FROM student_invoices WHERE student_id=?`, item.ID).Scan(&invoiceCount, &billed, &paid); err != nil {
+	if err = h.db.QueryRowContext(c.Request.Context(), `SELECT COUNT(*),COALESCE(SUM(final_amount),0),COALESCE(SUM(paid_amount),0) FROM student_invoices WHERE student_id=?`+periodWhere, periodArgs...).Scan(&invoiceCount, &billed, &paid); err != nil {
 		c.AbortWithError(500, err)
 		return
 	}
-	_ = h.db.QueryRowContext(c.Request.Context(), `SELECT COUNT(*) FROM payments WHERE student_id=?`, item.ID).Scan(&paymentCount)
-	_ = h.db.QueryRowContext(c.Request.Context(), `SELECT COUNT(*) FROM student_funding_programs WHERE student_id=?`, item.ID).Scan(&fundingCount)
-	rows, err := h.db.QueryContext(c.Request.Context(), `SELECT invoice_number,description,DATE_FORMAT(due_date,'%d/%m/%Y'),status,final_amount,paid_amount FROM student_invoices WHERE student_id=? ORDER BY due_date DESC LIMIT 10`, item.ID)
+	paymentCountQuery := `SELECT COUNT(DISTINCT p.id) FROM payments p JOIN payment_allocations pa ON pa.payment_id=p.id JOIN student_invoices i ON i.id=pa.student_invoice_id WHERE p.student_id=?`
+	fundingCountQuery := `SELECT COUNT(*) FROM student_funding_programs WHERE student_id=?`
+	countArgs := []any{item.ID}
+	if periodID > 0 {
+		paymentCountQuery += ` AND i.academic_period_id=?`
+		fundingCountQuery += ` AND academic_period_id=?`
+		countArgs = append(countArgs, periodID)
+	}
+	_ = h.db.QueryRowContext(c.Request.Context(), paymentCountQuery, countArgs...).Scan(&paymentCount)
+	_ = h.db.QueryRowContext(c.Request.Context(), fundingCountQuery, countArgs...).Scan(&fundingCount)
+
+	invoiceQuery := `SELECT invoice_number,description,DATE_FORMAT(due_date,'%d/%m/%Y'),status,final_amount,paid_amount FROM student_invoices WHERE student_id=?` + periodWhere + ` ORDER BY due_date DESC,created_at DESC LIMIT 50`
+	rows, err := h.db.QueryContext(c.Request.Context(), invoiceQuery, periodArgs...)
 	if err != nil {
 		c.AbortWithError(500, err)
 		return
@@ -215,16 +280,79 @@ func (h studentsHandlers) details(c *gin.Context) {
 		x.StatusLabel = invoiceStatusLabel(x.Status)
 		invoices = append(invoices, x)
 	}
+	rows.Close()
+
+	paymentQuery := `SELECT p.id,p.payment_number,DATE_FORMAT(p.payment_date,'%d/%m/%Y %H:%i'),p.payment_method,COALESCE(p.reference_number,''),SUM(pa.amount),p.status,COUNT(pa.id) FROM payments p JOIN payment_allocations pa ON pa.payment_id=p.id JOIN student_invoices i ON i.id=pa.student_invoice_id WHERE p.student_id=?`
+	paymentArgs := []any{item.ID}
+	if periodID > 0 {
+		paymentQuery += ` AND i.academic_period_id=?`
+		paymentArgs = append(paymentArgs, periodID)
+	}
+	paymentQuery += ` GROUP BY p.id,p.payment_number,p.payment_date,p.payment_method,p.reference_number,p.status ORDER BY p.payment_date DESC,p.id DESC`
+	paymentRows, err := h.db.QueryContext(c.Request.Context(), paymentQuery, paymentArgs...)
+	if err != nil {
+		c.AbortWithError(500, err)
+		return
+	}
+	payments := []studentPaymentHistory{}
+	for paymentRows.Next() {
+		var x studentPaymentHistory
+		var amount float64
+		if err = paymentRows.Scan(&x.ID, &x.Number, &x.Date, &x.Method, &x.Reference, &amount, &x.Status, &x.AllocationCount); err != nil {
+			paymentRows.Close()
+			c.AbortWithError(500, err)
+			return
+		}
+		x.Method = paymentMethodLabel(x.Method)
+		x.Amount = formatRupiah(amount)
+		x.StatusLabel = paymentStatusLabel(x.Status)
+		payments = append(payments, x)
+	}
+	paymentRows.Close()
+
+	fundingQuery := `SELECT sfp.id,fp.name,fp.code,b.benefit_type,b.benefit_value,ct.name,COALESCE(CONCAT(ap.academic_year,' / ',ap.semester),'Semua semester'),COALESCE(sfp.reference_number,''),CONCAT(DATE_FORMAT(sfp.start_date,'%d/%m/%Y'),' – ',COALESCE(DATE_FORMAT(sfp.end_date,'%d/%m/%Y'),'seterusnya')),sfp.status,COUNT(DISTINCT a.id),COALESCE(SUM(a.amount),0) FROM student_funding_programs sfp JOIN funding_programs fp ON fp.id=sfp.funding_program_id JOIN funding_program_benefits b ON b.funding_program_id=fp.id JOIN charge_types ct ON ct.id=b.charge_type_id LEFT JOIN academic_periods ap ON ap.id=sfp.academic_period_id LEFT JOIN student_invoice_adjustments a ON a.student_funding_program_id=sfp.id WHERE sfp.student_id=?`
+	fundingArgs := []any{item.ID}
+	if periodID > 0 {
+		fundingQuery += ` AND sfp.academic_period_id=?`
+		fundingArgs = append(fundingArgs, periodID)
+	}
+	fundingQuery += ` GROUP BY sfp.id,fp.name,fp.code,b.benefit_type,b.benefit_value,ct.name,ap.academic_year,ap.semester,sfp.reference_number,sfp.start_date,sfp.end_date,sfp.status ORDER BY sfp.start_date DESC,sfp.id DESC`
+	fundingRows, err := h.db.QueryContext(c.Request.Context(), fundingQuery, fundingArgs...)
+	if err != nil {
+		c.AbortWithError(500, err)
+		return
+	}
+	fundingPrograms := []studentFundingHistory{}
+	for fundingRows.Next() {
+		var x studentFundingHistory
+		var benefitType string
+		var benefitValue, adjustmentTotal float64
+		if err = fundingRows.Scan(&x.ID, &x.Program, &x.Code, &benefitType, &benefitValue, &x.ChargeType, &x.Period, &x.Reference, &x.Dates, &x.Status, &x.AdjustmentCount, &adjustmentTotal); err != nil {
+			fundingRows.Close()
+			c.AbortWithError(500, err)
+			return
+		}
+		x.Benefit = fundingBenefitLabel(benefitType, benefitValue)
+		x.StatusLabel = studentFundingStatusLabel(x.Status)
+		x.AdjustmentTotal = formatRupiah(adjustmentTotal)
+		fundingPrograms = append(fundingPrograms, x)
+	}
+	fundingRows.Close()
 	p := auth.CurrentPrincipal(c)
 	data := h.baseData(p, "Detail Mahasiswa")
 	data["Student"] = item
 	data["Invoices"] = invoices
+	data["Payments"] = payments
+	data["FundingPrograms"] = fundingPrograms
+	data["Periods"] = periods
+	data["SelectedPeriod"] = selectedPeriod
+	data["ActiveTab"] = tab
 	data["InvoiceCount"] = invoiceCount
 	data["PaymentCount"] = paymentCount
 	data["FundingCount"] = fundingCount
 	data["Billed"] = formatRupiah(billed)
 	data["Paid"] = formatRupiah(paid)
-	data["Remaining"] = formatRupiah(billed - paid)
+	data["Remaining"] = formatRupiah(max(billed-paid, 0))
 	data["Status"] = c.Query("status")
 	data["CanUpdate"] = p.HasRole("Super Admin") || p.HasPermission("students.update")
 	c.HTML(200, "students/details.html", data)
