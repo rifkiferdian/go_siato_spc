@@ -80,6 +80,20 @@
 }
 
 @layer components {
+  .falling-leaves {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .falling-leaves { display: none; }
+  }
+
   .siato-swal-popup { border-radius: 1rem; font-family: var(--font-sans); }
   :is(.master-form, form[action^="/academic-periods"], form[action^="/student-categories"], form[action^="/charge-types"], form[action^="/students"]) { width: 100%; max-width: 960px; }
   :is(.master-form, form[action^="/academic-periods"], form[action^="/student-categories"], form[action^="/charge-types"], form[action^="/students"]) > section { padding: 20px !important; }
