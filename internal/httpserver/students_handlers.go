@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	stdhtml "html"
+	"html/template"
 	"net/mail"
 	"strconv"
 	"strings"
@@ -37,6 +39,7 @@ type studentInvoice struct {
 type studentPaymentHistory struct {
 	ID                                                           int64
 	Number, Date, Method, Reference, Amount, Status, StatusLabel string
+	Purpose                                                      template.HTML
 	AllocationCount                                              int
 }
 type studentFundingHistory struct {
@@ -282,7 +285,7 @@ func (h studentsHandlers) details(c *gin.Context) {
 	}
 	rows.Close()
 
-	paymentQuery := `SELECT p.id,p.payment_number,DATE_FORMAT(p.payment_date,'%d/%m/%Y %H:%i'),p.payment_method,COALESCE(p.reference_number,''),SUM(pa.amount),p.status,COUNT(pa.id) FROM payments p JOIN payment_allocations pa ON pa.payment_id=p.id JOIN student_invoices i ON i.id=pa.student_invoice_id WHERE p.student_id=?`
+	paymentQuery := `SELECT p.id,p.payment_number,GROUP_CONCAT(DISTINCT CONCAT(i.description,' — ',ct.name) ORDER BY i.due_date SEPARATOR '||'),DATE_FORMAT(p.payment_date,'%d/%m/%Y %H:%i'),p.payment_method,COALESCE(p.reference_number,''),SUM(pa.amount),p.status,COUNT(pa.id) FROM payments p JOIN payment_allocations pa ON pa.payment_id=p.id JOIN student_invoices i ON i.id=pa.student_invoice_id JOIN charge_types ct ON ct.id=i.charge_type_id WHERE p.student_id=?`
 	paymentArgs := []any{item.ID}
 	if periodID > 0 {
 		paymentQuery += ` AND i.academic_period_id=?`
@@ -297,13 +300,15 @@ func (h studentsHandlers) details(c *gin.Context) {
 	payments := []studentPaymentHistory{}
 	for paymentRows.Next() {
 		var x studentPaymentHistory
+		var rawPurpose string
 		var amount float64
-		if err = paymentRows.Scan(&x.ID, &x.Number, &x.Date, &x.Method, &x.Reference, &amount, &x.Status, &x.AllocationCount); err != nil {
+		if err = paymentRows.Scan(&x.ID, &x.Number, &rawPurpose, &x.Date, &x.Method, &x.Reference, &amount, &x.Status, &x.AllocationCount); err != nil {
 			paymentRows.Close()
 			c.AbortWithError(500, err)
 			return
 		}
 		x.Method = paymentMethodLabel(x.Method)
+		x.Purpose = template.HTML(strings.ReplaceAll(stdhtml.EscapeString(rawPurpose), "||", "<br>"))
 		x.Amount = formatRupiah(amount)
 		x.StatusLabel = paymentStatusLabel(x.Status)
 		payments = append(payments, x)

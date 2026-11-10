@@ -180,6 +180,30 @@
   form[action^="/students/"][action$="/delete"] > button:hover { border-color: #fca5a5; background-color: #fef2f2; color: #b91c1c; }
   div:has(> form[action^="/students/"][action$="/delete"]) > a:hover,
   form[action^="/students/"][action$="/delete"] > button:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgb(15 23 42 / 0.08); }
+  td:last-child > div:has(> a:is([href^="/academic-periods/"], [href^="/student-categories/"], [href^="/charge-types/"])) { align-items: center; gap: 8px !important; }
+  td:last-child > div > a:is([href^="/academic-periods/"], [href^="/student-categories/"], [href^="/charge-types/"]),
+  form:is([action^="/academic-periods/"], [action^="/student-categories/"], [action^="/charge-types/"])[action$="/delete"] > button {
+    display: inline-grid !important;
+    width: 38px !important;
+    height: 38px !important;
+    flex: 0 0 38px;
+    place-items: center;
+    border-radius: 10px !important;
+    padding: 0 !important;
+    background-color: #ffffff;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+    line-height: 1;
+    transition: transform 160ms ease, border-color 160ms ease, background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+  }
+  td:last-child > div > a:is([href^="/academic-periods/"], [href^="/student-categories/"], [href^="/charge-types/"]) { border-color: #ddd6fe; color: #7c3aed; }
+  td:last-child > div > a:is([href^="/academic-periods/"], [href^="/student-categories/"], [href^="/charge-types/"]):hover { border-color: #c4b5fd; background-color: #f5f3ff; color: #6d28d9; }
+  form:is([action^="/academic-periods/"], [action^="/student-categories/"], [action^="/charge-types/"])[action$="/delete"] { display: flex; margin: 0; }
+  form:is([action^="/academic-periods/"], [action^="/student-categories/"], [action^="/charge-types/"])[action$="/delete"] > button { border-color: #fecaca; color: #dc2626; }
+  form:is([action^="/academic-periods/"], [action^="/student-categories/"], [action^="/charge-types/"])[action$="/delete"] > button:hover { border-color: #fca5a5; background-color: #fef2f2; color: #b91c1c; }
+  td:last-child > div > a:is([href^="/academic-periods/"], [href^="/student-categories/"], [href^="/charge-types/"]):hover,
+  form:is([action^="/academic-periods/"], [action^="/student-categories/"], [action^="/charge-types/"])[action$="/delete"] > button:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgb(15 23 42 / 0.08); }
+  td:last-child > div > a:is([href^="/academic-periods/"], [href^="/student-categories/"], [href^="/charge-types/"]) > i,
+  form:is([action^="/academic-periods/"], [action^="/student-categories/"], [action^="/charge-types/"])[action$="/delete"] > button > i { font-size: 14px; line-height: 1; }
   .admin-nav-group,
   .admin-header-menu { @apply rounded-none border-0 bg-transparent p-0 open:shadow-none; }
   .admin-nav-group > summary,
